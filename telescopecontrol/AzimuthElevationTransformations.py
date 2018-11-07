@@ -45,4 +45,4 @@ def azimuthOffset(azimuth, offset):
     -------
     a float in range of 0..360
     '''
-    return (azimuth + 360 + offset) % 360 
+    return (azimuth + 360 + offset) % 360
