@@ -1,0 +1,284 @@
+{% extends 'layout.html' %}
+{% block scripts %}
+{% load static %}
+<script>
+// This function rejects form submission with enter
+    function stopRKey(evt) {
+        var evt = (evt) ? evt : ((event) ? event : null);
+        var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+        if (evt.keyCode == 13)  {return false;}
+    }
+
+    document.onkeypress = stopRKey;
+</script>
+<style>
+.x_link .x_hover {
+  display: none;
+}
+.x_link:hover .x_default,
+.x_link:active .x_default{
+  display: none;
+}
+.x_link:hover .x_hover,
+.x_link:active .x_hover{
+  display: inline;
+  text-align:right;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% load static %}
+<div class="row">
+    <div class="col" style="margin-bottom:2%">
+        <h2>Target Observation</h2>
+    </div>
+</div>
+<form action="#">
+<div class="row">
+    <div class="col-md-5">
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Target</div>
+        </div>
+        <input type="text" required class="form-control" placeholder="targetname" name="target" id="target">
+    </div>
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Duration</div>
+        </div>
+        <input type="number" required class="form-control" size="7" placeholder="minutes" name="duration" id="duration">
+    </div>
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <div class="input-group-text">Start Time</div>
+        </div>
+        <input type="time" step="1" class="form-control" size="7" placeholder="minutes" name="start_time" id="startTime">
+    </div>
+    </div>
+
+    <div class="col-md-7">
+        <ul class="nav nav-tabs track_nav" id="myTab" role="tablist" style="margin-bottom:3%">
+            <li class="nav-item">
+                <a class="nav-link active" id="track-tab" data-toggle="tab" href="#track" role="tab" aria-controls="track" aria-selected="true">Track</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="cross-tab" data-toggle="tab" href="#cross" role="tab" aria-controls="cross" aria-selected="false">Cross</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="lissajaous-tab" data-toggle="tab" href="#lissajous" role="tab" aria-controls="lissajous" aria-selected="false">Lissajous</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pong-tab" data-toggle="tab" href="#pong" role="tab" aria-controls="pong" aria-selected="false">Pong</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="raster-tab" data-toggle="tab" href="#raster" role="tab" aria-controls="raster" aria-selected="false">Raster</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="observation_modes">
+            <div class="tab-pane fade show active" id="track" role="tabpanel" aria-labelledby="track-tab">
+                <input type="submit" class="btn btn-outline-secondary" name="submit_track" value="Start Track">
+            </div>
+            <div class="tab-pane fade" id="cross" role="tabpanel" aria-labelledby="cross-tab">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">Cross size</div>
+                    </div>
+                    <input type="number" class="form-control" size="6" placeholder="az" name="az_cross">
+                    <input type="number" class="form-control" size="6" placeholder="el" name="el_cross">
+                </div>
+                <br>
+                <input type="submit" class="btn btn-outline-secondary" name="submit_cross" value="Start Cross">
+            </div>
+
+            <div class="tab-pane fade" id="lissajous" role="tabpanel" aria-labelledby="lissajous-tab">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">Frame size</div>
+                    </div>
+                    <input type="number" step="0.5" class="form-control" size="5" placeholder="az" name="az_frame_lissajous">
+                    <input type="number" step="0.5" class="form-control" size="5" placeholder="el" name="el_frame_lissajous">
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">Omega (&deg;/s)</div>
+                    </div>
+                    <input type="number" step="0.1" class="form-control" size="1" placeholder="az" name="az_omega">
+                    <input type="number" step="0.1" class="form-control" size="1" placeholder="el" name="el_omega">
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">Phi (&deg;/s)</div>
+                    </div>
+                    <input type="number" step="0.1" class="form-control" size="5" placeholder="az" name="az_phi">
+                    <input type="number" step="0.1" class="form-control" size="5" placeholder="el" name="el_phi">
+                </div>
+                <br>
+                <input type="submit" class="btn btn-outline-secondary" name="submit_lissajous" value="Start Lissajous">
+            </div>
+            <div class="tab-pane fade" id="pong" role="tabpanel" aria-labelledby="pong-tab">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">Frame size</div>
+                    </div>
+                    <input type="number" step="0.5" class="form-control" size="5" placeholder="az" name="az_frame_pong">
+                    <input type="number" step="0.5" class="form-control" size="5" placeholder="el" name="el_frame_pong">
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">Start off the target</div>
+                    </div>
+                    <input type="number" step="0.1" class="form-control" size="1" placeholder="az" name="az_start">
+                    <input type="number" step="0.1" class="form-control" size="1" placeholder="el" name="el_start">
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">Start angle</div>
+                    </div>
+                    <input type="number" step="0.1" class="form-control" size="5" placeholder="" name="start_angle">
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">Velocity (&deg;/s)</div>
+                    </div>
+                    <input type="number" step="0.1" class="form-control" size="5" placeholder="" name="velocity">
+                </div>
+                <br>
+                <input type="submit" class="btn btn-outline-secondary" name="submit_pong" value="Start Pong">
+
+            </div>
+            <div class="tab-pane fade" id="raster" role="tabpanel" aria-labelledby="raster-tab">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">Frame size</div>
+                    </div>
+                    <input type="number" step="0.5" class="form-control" size="5" placeholder="az" name="az_frame_raster">
+                    <input type="number" step="0.5" class="form-control" size="5" placeholder="el" name="el_frame_raster">
+                </div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                    <div class="input-group-text">Number of lines</div>
+                    </div>
+                    <input type="number" class="form-control" name="raster_lines">
+                </div>
+                <div class="input-group" style="margin-top:1%">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-secondary active">
+                            <input type="radio" name="first" value="True" id="firstaz" checked>First Azimuth
+                        </label>
+                        <label class="btn btn-secondary">
+                            <input type="radio" name="first" value="False" id="firstel">First Elevation
+                        </label>
+                    </div>
+                </div>
+                <br>
+                <input type="submit" class="btn btn-outline-secondary" name="submit_raster" value="Start Raster">
+
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+<div class="row">
+    <div class="col">
+        <h5>Get Target position</h5>
+    </div>
+</div>
+<div class="row">
+    <div class="col-6">
+        <form action="#">
+        <div class="input-group">
+            <input type="text" required class="form-control" placeholder="targetname" name="check_target_tbx">
+            <div class="input-group-append">
+                <input type="submit" class="btn btn-outline-secondary" value="Check Target" name="check_target">
+            </div>
+        </div>
+        </form>
+    </div>
+    <div class="col-6">
+        {% if target_error %}
+            <h6>{{target_error}}</h6>
+        {% endif %}
+        {% if target_ok %}
+            <table class="table table-hover table-active">
+              <thead>
+                <tr>
+                  <th scope="col">Antenna#</th>
+                  <th scope="col">Azimuth</th>
+                  <th scope="col">Elevation</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for az,el in azel %}
+                <tr>
+                  <th scope="row">{{forloop.counter}}</th>
+                  <td>{{az}}</td>
+                  <td>{{el}}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>
+<div class="row">
+    <div class="col" style="margin-top:3%">
+        <h5>Track Queue</h5>
+        <div class="table-vertical-scroll">
+            <table class="table table-hover table-active">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Target</th>
+                  <th scope="col">Duration</th>
+                  <th scope="col">startTime</th>
+                  <th scope="col">Mode</th>
+                  <th scope="col" style="text-align:right">Stop/Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if current_track %}
+                <tr>
+                  <th scope="row">Current</th>
+                    <td><b>{{ current_track.target }}</b></td>
+                    <td><b>{{ current_track.duration }}</b></td>
+                    <td><b>{{ current_track.startTime }}</b></td>
+                    <td><b>{{ current_track.mode }}</b></td>
+                    <td style="text-align:right">
+                        <a href="/track?del_track=current" class="x_link">
+                            <img src="{% static 'home/img/x.svg' %}" class="x_default" width="12%" alt="">
+                            <img src="{% static 'home/img/x_hover.svg' %}" class="x_hover" width="12%" alt="">
+                        </a>
+
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <th colspan="6" style="text-align:center">No Current track</th>
+                </tr>
+                {% endif %}
+                {% for track in pending_tracks %}
+                <tr>
+                  <th scope="row">{{ forloop.counter }}</th>
+                  <td>{{ track.0 }}</td>
+                  <td>{{ track.1 }}</td>
+                  <td>{{ track.3 }}</td>
+                  <td>{{ track.5 }}</td>
+                  <td style="text-align:right">
+                      <a href="/track?del_track={{forloop.counter0}}#" class="x_link">
+                          <img src="{% static 'home/img/x.svg' %}" class="x_default" width="12%" alt="">
+                          <img src="{% static 'home/img/x_hover.svg' %}" class="x_hover" width="12%" alt="">
+                      </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+        </div>
+        <form action="#">
+            <input type="submit" class="btn btn-outline-danger" style="float:right; margin:5px 10px 0 0" name="stop_all_tracks" value="Stop all tracks">
+        </form>
+    </div>
+</div>
+
+{% endblock %}

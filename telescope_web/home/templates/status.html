@@ -1,0 +1,99 @@
+
+            <div class="row nav_row">
+                <h1>Data/Status</h1>
+            </div>
+                <div class="row roach_row">
+                    <div class="col readout">
+                        {% load static %}
+                        <img src="{% static 'home/img/example.png' %}" alt="Roachboard Readout" class="center" >
+                    </div>
+                    <div class="col settings">
+                        Roachboard settings
+                    </div>
+                </div>
+                <div class="row telstat_row">
+                    <div class="col">
+                        <script>
+                            function update_func()
+                            {
+                                $("#az1").load("updated_content .az0");
+                                $("#el1").load("updated_content .el0");
+                                $("#az2").load("updated_content .az1");
+                                $("#el2").load("updated_content .el1");
+                                $("#motion").load("updated_content .status4");
+                                $("#system").load("updated_content .status1");
+                                $("#fault").load("updated_content .status2");
+                                $("#telescope").load("updated_content .status3");
+                                $("#connection").load("updated_content .status5");
+                            };
+                            update_func();
+                            setInterval(update_func, 60000);
+                        </script>
+                        <table class="table table-hover table-active">
+                          <thead>
+                            <tr>
+                              <th scope="col">Shed Side Telescope</th>
+                              <th scope="col">Position</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <th scope="row">Azimuth</th>
+                              <td><div class="update" id="az1"></div></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Elevation</th>
+                                <td><div class="update" id="el1"></div></td>
+                            </tr>
+                          </tbody>
+                          <thead>
+                            <tr>
+                              <th scope="col">Stairs Side Telescope</th>
+                              <th scope="col">Position</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <th scope="row">Azimuth</th>
+                              <td><div class="update" id="az2"></div></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Elevation</th>
+                                <td><div class="update" id="el2"></div></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col plc_col">
+                        <table class="table table-hover table-active">
+                          <thead>
+                            <tr>
+                              <th scope="col">PLC Register</th>
+                              <th scope="col">Current Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                                <th scope="row">Motion Command</th>
+                                <td><div class="update" id="motion"></div></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">System Status</th>
+                                <td><div class="update" id="system"></div></td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Fault Code</th>
+                              <td><div class="update" id="fault"></div></td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Telescope Status</th>
+                              <td><div class="update" id="telescope"></div></td>
+                            </tr>
+                                                  <tr>
+                              <th scope="row">Connection</th>
+                              <td><div class="update" id="connection"></div></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                    </div>
+                </div>
