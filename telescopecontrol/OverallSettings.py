@@ -159,22 +159,27 @@ class OverallSettings(object):
             self.inHomePosition = False
             self.askRolloverCounter()
 
-    def askRolloverCounter(self):
+    def askRolloverCounter(self, rollover):
         """This method ask the user for the current rollover position.
         It will be called, if the previous session wasn't closed with quit() or exit()
         """
+        n = 0
         for i in range(len(self.sensorList)):
             self.sensorList[i].raiseStatus = 3 # 'error'
             if self.sensorList[i].isAzimuth:
                 isInt=False
-                while not isInt:
-                    try:    # Put that lines in a method
-                        self.sensorList[i].rolloverCounter = int(raw_input("According to the limits, the zone of %s is between %i and %i.\nInsert the current rollover zone. \n > "
-                                                                           %(self.sensorList[i].name, self.sensorList[i].rolloverCounterMinMax[0],self.sensorList[i].rolloverCounterMinMax[1])))
-                        isInt = True
-                    except ValueError:
-                        print "Please insert an Integer!"
-                        isInt = False
+                if len(rollover) == len(self.antennaList):
+                    self.sensorList[i].rolloverCounter = rollover[n]
+                else:
+                    while not isInt:
+                        try:    # Put that lines in a method
+                            self.sensorList[i].rolloverCounter = int(raw_input("According to the limits, the zone of %s is between %i and %i.\nInsert the current rollover zone. \n > "
+                                                                               %(self.sensorList[i].name, self.sensorList[i].rolloverCounterMinMax[0],self.sensorList[i].rolloverCounterMinMax[1])))
+                            isInt = True
+                        except ValueError:
+                            print "Please insert an Integer!"
+                            isInt = False
+                n += 1
 
 ##### Open, Close Modbus Connections #####
 

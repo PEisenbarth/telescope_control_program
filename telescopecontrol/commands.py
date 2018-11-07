@@ -31,8 +31,8 @@ def show_telescopes():
 def halt_telescopes():
     OVST.haltTelescopes()
 
-def clear_fault():
-    OVST.clearTelescopeFault()
+def clear_fault(rollover):
+    OVST.clearTelescopeFault(rollover)
 
 
 ### Moving Commands ###

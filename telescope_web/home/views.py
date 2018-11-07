@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.shortcuts import render, redirect
-from telescopecontrol.commands import *
-from telescopecontrol.check_target import *
-# from .check_target import *
-# from .commands import *
+# from telescopecontrol.commands import *
+# from telescopecontrol.check_target import *
+from .check_target import *
+from .commands import *
 from update_Status import update
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 
 # TODO: Implement Telescope Settings
-update(OVST)
+# update(OVST)
 
 def index(request):
     return render(request, 'home.html')
@@ -23,15 +23,16 @@ def getvalue(request, name, val_type):
         return val_type(request.GET.get(name))
     except:
         return None
+
 #@login_required(login_url='/login')
-def tracks(request): # TODO
+def track(request): # TODO
     '''
     This is the view function for /track. It checks if a form for a tracking mode was submitted and calls the corresponding 
     funciton. After that, the user gets redirected to /track
     The keys of the dictionaries must have the same name as the kwargs in ObservationMode of the telescope control
     program
     '''
-    context = {}
+    context = {'nbar': 'track'}
     current = current_track()
     if current:
         context['current_track'] = {
@@ -43,8 +44,8 @@ def tracks(request): # TODO
     context['pending_tracks'] = pending_tracks()
     if context['pending_tracks']:
         # Change the 'ObservationMode' object to the name of the mode so that the name gets displayed on the website
-        for i, pending in enumerate(context['pending_tracks']):
-            context['pending_tracks'][i][5] = pending[5].mode
+        # for i, pending in enumerate(context['pending_tracks']):
+        #     context['pending_tracks'][i][5] = pending[5].mode
         pass
     try:
         target = str(request.GET.get('target'))
@@ -143,6 +144,7 @@ def pointing(request):
     '''
     View for the /pointing site
     '''
+    context = {'nbar': 'pointing'}
     if request.GET.get('moveazel'):
         try:
             az = float(request.GET.get('az'))
@@ -179,7 +181,31 @@ def pointing(request):
     if (request.GET.get('quit')):
         quit_tel()
         return redirect('/pointing')
-    return render(request, 'pointing.html')
+    return render(request, 'pointing.html', context)
+
+
+def tel_settings(request):
+    context = {'nbar': 'tel_settings',
+               'halt':  OVST.halt}
+    if request.GET.get('submit_choose_antennas'):
+        antennas = []
+        for i, ant in enumerate(OVST.antennaList):
+            if request.GET.get('antenna%i'%i) == ant.name:
+                antennas.append(ant)
+        print 'antennas chosen:'
+        print antennas
+        choose_telescopes(antennas)
+        return redirect('/tel_settings')
+
+    if request.GET.get('submit_clear_fault'):
+        rollover = []
+        for i, ant in enumerate(OVST.antennaList):
+            rollover.append(request.GET.get('rollover%i'%i))
+        clear_fault()
+
+    context['antennas'] = [ant.name for ant in OVST.antennaList]
+    context['active_antennas'] = [ant.name for ant in OVST.active_antennas]
+    return render(request, 'tel_settings.html', context)
 
 
 def updated_content(request):

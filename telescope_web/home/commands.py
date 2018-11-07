@@ -1,11 +1,14 @@
+# Intended for debugging issues (Contains all telescope control commands so that you don't need to start
+# the whole control program)
 import threading
 import os
 import sys
 import time
 from functools import wraps
 from Queue import Queue
+from katpoint import Antenna
 
-class Q(Queue):
+class Vars(Queue):
     def __init__(self):
         Queue.__init__(self)
         self.put(['Kochab', 40, None, '14:30:00', 20, 'Pong'])
@@ -17,9 +20,17 @@ class Q(Queue):
         self.put(['Kochab', 40, None, '14:35:00', 20, 'Pong'])
         self.put(['Sun', 10, None, '16:15:00', 20, 'Raster'])
         self.put(['Capella', 20, None, '11:15:00', 20, 'Lissajous'])
+        RTT = Antenna("Roof Top Telescope (Shed Side)", '51:45:34.5', '-1:15:34.8', 85)
+        RTT2 = Antenna("Roof Top Telescope 2 (Stairs Side)", '51:45:34.6', '-1:15:34.9', 85)  # height is not exact
 
-q = Q()
-print 'Queue initialised!!'
+        self.antennaList = [RTT, RTT2]
+        self.active_antennas = [RTT, RTT2]
+
+        self.halt = False
+
+
+OVST = Vars()
+
 # Decorator function that threads the decorated function
 def threaded(func):
     @wraps(func)
@@ -31,16 +42,30 @@ def threaded(func):
 
 ### general commands ###
 
-def choose_telescopes(telescopes = None):
-    pass
+def choose_telescopes(telescopes=None):
+    OVST.active_antennas = []
+    if not isinstance(telescopes, list):
+        telescopes = [telescopes]
+    for ant in telescopes:
+        if ant in telescopes:
+            OVST.active_antennas.append(ant)
+
+    print ('active antennas: ', OVST.active_antennas)
 def active_telescopes():
-    pass
+    return OVST.active_antennas
+
 def show_telescopes():
-    pass
+    return OVST.antennaList
+
 def halt_telescopes():
-    pass
+    OVST.halt = True
+
+def clear_halt():
+    OVST.halt = False
+
 def clear_fault():
-    pass
+    print 'Fault cleared!'
+
 
 ### Moving Commands ###
 
@@ -66,7 +91,7 @@ def continue_track():
     pass
 
 def stop_all_tracks():
-    q.queue.clear()
+    OVST.queue.clear()
 
 def mapping(mode, az_frame, el_frame, *args, **kwargs):
     pass
@@ -75,11 +100,11 @@ def current_track():
     return ['Capella', 120, '12:00:00', 'Raster']
 
 def pending_tracks():
-    return list(q.queue)
+    return list(OVST.queue)
 
 
 def delete_track(num=None):
-    q.queue.remove(q.queue[num])
+    OVST.queue.remove(OVST.queue[num])
 # def start_server():
 #     sys.path.append('/home/telescopecontrol/PhilippE/telescope_control/telescope_web')
 #     from telescope_web import run

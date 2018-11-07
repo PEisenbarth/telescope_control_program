@@ -9,7 +9,6 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="{% static 'home/js/bootstrap.min.js' %}"></script>
-
     {% block scripts %}
     {% endblock %}
 </head>
@@ -28,13 +27,13 @@
                   </button>
                   <div class="collapse navbar-collapse" id="navbarNavDropdown">
                     <ul class="navbar-nav">
-                      <li class="nav-item">
+                      <li class="nav-item {% if nbar == 'track' %}active{% endif %}">
                         <a class="nav-link" href="/track">Observation</a>
                       </li>
-                      <li class="nav-item">
+                      <li class="nav-item {% if nbar == 'pointing' %}active{% endif %}">
                         <a class="nav-link" href="/pointing">Pointing</a>
                       </li>
-                      <li class="nav-item">
+                      <li class="nav-item {% if nbar == 'tel_settings' %}active{% endif %}">
                         <a class="nav-link" href="/tel_settings">Telescope Settings</a>
                       </li>
                     </ul>
