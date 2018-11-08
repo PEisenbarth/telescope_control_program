@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 # update(OVST)
 
 def index(request):
-    return render(request, 'home.html')
+    return render(request, 'home/home.html')
 
 
 def getvalue(request, name, val_type):
@@ -34,6 +34,9 @@ def track(request): # TODO
     '''
     context = {'nbar': 'track'}
     current = current_track()
+    context['in_range'] = OVST.in_range
+    context['update_time'] = OVST.update_time
+
     if current:
         context['current_track'] = {
             'target':       current[0],
@@ -125,19 +128,16 @@ def track(request): # TODO
     if request.GET.get('check_target'):
         target = str(request.GET.get('check_target_tbx'))
         try:
-            azel = check_target(OVST, target)
+            azel = check_target(OVST, target, check=False)
             azel = [[round(item[0], 4), round(item[1], 4)] for item in azel]
-            context.update({'target_ok': [target],
-                       'azel': azel,
-                       })
+            context.update({'target_ok': target,
+                            'azel': azel})
         except ValueError:
-            context.update({'target_error': '%s not in Catalogue' % target})
+            context.update({'target_error': '%s is not in Catalogue' % target})
         except LookupError:
-            context.update({'target_error': '%s not in range' % target})
-        return render(request, 'track.html', context)
-    if request.GET.get('del_tracks'):
-        print request.GET.get('del_tracks')
-    return render(request, 'track.html', context)
+            context.update({'target_error': '%s is not in range' % target})
+        return render(request, 'home/track.html', context)
+    return render(request, 'home/track.html', context)
 
 
 def pointing(request):
@@ -181,7 +181,7 @@ def pointing(request):
     if (request.GET.get('quit')):
         quit_tel()
         return redirect('/pointing')
-    return render(request, 'pointing.html', context)
+    return render(request, 'home/pointing.html', context)
 
 
 def tel_settings(request):
@@ -192,6 +192,8 @@ def tel_settings(request):
         for i, ant in enumerate(OVST.antennaList):
             if request.GET.get('antenna%i'%i) == ant.name:
                 antennas.append(ant)
+        if len(antennas) == 0:
+            choose_telescopes()
         print 'antennas chosen:'
         print antennas
         choose_telescopes(antennas)
@@ -203,13 +205,22 @@ def tel_settings(request):
             rollover.append(request.GET.get('rollover%i'%i))
         clear_fault()
 
+    if request.GET.get('submit_halt'):
+        halt_telescopes()
+        return redirect('/tel_settings')
+
+    if request.GET.get('submit_clear_halt'):
+        clear_halt()
+        return redirect('/tel_settings')
+
     context['antennas'] = [ant.name for ant in OVST.antennaList]
     context['active_antennas'] = [ant.name for ant in OVST.active_antennas]
-    return render(request, 'tel_settings.html', context)
+    context['halt'] = OVST.halt
+    return render(request, 'home/tel_settings.html', context)
 
 
 def updated_content(request):
-    return render(request, 'updated_content.html')
+    return render(request, 'home/updated_content.html')
 
 
 

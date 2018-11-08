@@ -1,10 +1,10 @@
-{% extends 'layout.html' %}
+{% extends 'home/layout.html' %}
 
 {% block content %}
 <div class="row">
     <div class="col-6">
         <h5>Choose telescopes</h5>
-        <p style="margin:0">The green ones are chosen</p>
+        <p style="margin:0">Green telescopes are chosen</p>
         <form action="#">
 
             {% for antenna in antennas%}
@@ -26,20 +26,14 @@
             <input type="submit" id="sub" class="btn btn-outline-secondary" style="margin-top:1%" name="submit_choose_antennas" value="Choose Antennas">
         </form>
         <br>
-        <h5>Choose DAQ directory</h5>
-        <form action="#">
-            <div class="input-group">
-
-            </div>
-        </form>
     </div>
     <div class="col-6">
         <h5>Clear telescope Fault</h5>
-        <p style="margin:0">Type in the rollover of the telescopes</p>
+        <p style="margin:0">Type in the rollover of the left named telescopes</p>
         <form action="#">
             {% for antenna in antennas %}
             <div class="input-group w-50">
-                <input type="number" required min="-1" max="0" class="form-control" placeholder="Shed side" name="rollover{{forloop.counter0}}">
+                <input type="number" required min="-1" max="0" class="form-control" placeholder="rollover" name="rollover{{forloop.counter0}}">
             </div>
             {% endfor %}
             <input type="submit" class="btn btn-outline-secondary" style="margin-top:1%" name="submit_clear_fault" value="Clear Fault">
@@ -47,7 +41,11 @@
         <br>
         <form action="#">
             <div class="text-center">
-                <input type="submit" class="btn btn-outline-secondary w-50" value="Halt Telescopes">
+                {% if halt%}
+                    <input type="submit" class="btn btn-outline-secondary w-50" name="submit_halt" value="Halt Telescopes">
+                {% else %}
+                    <input type="submit" class="btn btn-outline-secondary w-50" name="submit_clear_halt" value="Clear Telescope Halt">
+                {% endif %}
             </div>
         </form>
     </div>

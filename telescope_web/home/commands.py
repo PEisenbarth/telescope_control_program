@@ -2,11 +2,12 @@
 # the whole control program)
 import threading
 import os
-import sys
-import time
 from functools import wraps
 from Queue import Queue
-from katpoint import Antenna
+from katpoint import Antenna, Catalogue, rad2deg
+from datetime import datetime
+import time
+from .check_target import filter_catalogue
 
 class Vars(Queue):
     def __init__(self):
@@ -21,12 +22,42 @@ class Vars(Queue):
         self.put(['Sun', 10, None, '16:15:00', 20, 'Raster'])
         self.put(['Capella', 20, None, '11:15:00', 20, 'Lissajous'])
         RTT = Antenna("Roof Top Telescope (Shed Side)", '51:45:34.5', '-1:15:34.8', 85)
-        RTT2 = Antenna("Roof Top Telescope 2 (Stairs Side)", '51:45:34.6', '-1:15:34.9', 85)  # height is not exact
-
+        RTT2 = Antenna("Roof Top Telescope 2 (Stairs Side)", '51:45:34.6', '-1:15:34.9', 85)
         self.antennaList = [RTT, RTT2]
         self.active_antennas = [RTT, RTT2]
-
         self.halt = False
+        self.catalogue = Catalogue(add_specials=True, add_stars=True)
+        print 'Initialising Catalogues...'
+
+        filedir = '/Users/eisenbarth/Desktop/telescope_control_repo/telescope_control_program/telescopecontrol'
+        #
+        # # Hipparcos Catalogue
+        # filename = os.path.join(filedir, 'Catalogues/hipparcos.edb')
+        # self.catalogue.add_edb(file(filename))
+        #
+        # CBASS Catalogue
+        filename = os.path.join(filedir, 'Catalogues/CBASS_Catalogue.csv')
+        self.catalogue.add(file(filename))
+        #
+        # # Messier Catalogue
+        filename = os.path.join(filedir, 'Catalogues/MESSIER.edb')
+        self.catalogue.add_edb(file(filename))
+        self.update_time = None
+        self.in_range = None
+
+        # Checks which targets are in range of the telescopes. Depending on the size of the Catalogue, this can take
+        # very long. That's why it is threaded. If the first loop was completed, the list will be shown on the website
+        threading.Thread(target=self.check_in_range).start()
+
+        print 'Initialization Done!'
+
+    def check_in_range(self, loop=True):
+        while loop:
+            self.in_range = filter_catalogue(self)
+            self.update_time = datetime.now().time().isoformat()[:8]
+            if loop:
+                time.sleep(60)
+
 
 
 OVST = Vars()
@@ -44,6 +75,9 @@ def threaded(func):
 
 def choose_telescopes(telescopes=None):
     OVST.active_antennas = []
+    if not telescopes:
+        OVST.active_antennas = OVST.antennaList
+        return
     if not isinstance(telescopes, list):
         telescopes = [telescopes]
     for ant in telescopes:
@@ -65,6 +99,7 @@ def clear_halt():
 
 def clear_fault():
     print 'Fault cleared!'
+
 
 
 ### Moving Commands ###
@@ -101,7 +136,6 @@ def current_track():
 
 def pending_tracks():
     return list(OVST.queue)
-
 
 def delete_track(num=None):
     OVST.queue.remove(OVST.queue[num])

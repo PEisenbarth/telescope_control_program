@@ -58,18 +58,31 @@ body {
     border-bottom: 2px solid white
 }
 
-.center {
-    text-align: center;
-    width: 80%
-}
 
 .roach_row{
     margin: 0.5% 0 2% 0
 }
 
 .table-vertical-scroll{
-    display: block;
-    max-height: 250px;
+    display:block;
     overflow-y: auto;
     -ms-overflow-style: -ms-autohiding-scrollbar;
+    max-height: 250px;
+}
+.table-vertical-scroll tbody{
+    table-layout:fixed;/* even columns width , fix width of table too*/
+    overflow-y: auto;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    }
+.table-vertical-scroll thead{
+    table-layout:fixed;/* even columns width , fix width of table too*/
+}
+
+thead{
+    background-color: #002147;
+    color:white;
+    margin: 0 0 0 0
+}
+
+.table-in-range{
 }
