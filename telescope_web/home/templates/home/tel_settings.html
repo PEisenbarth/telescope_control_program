@@ -41,7 +41,7 @@
         <br>
         <form action="#">
             <div class="text-center">
-                {% if halt%}
+                {% if not halt%}
                     <input type="submit" class="btn btn-outline-secondary w-50" name="submit_halt" value="Halt Telescopes">
                 {% else %}
                     <input type="submit" class="btn btn-outline-secondary w-50" name="submit_clear_halt" value="Clear Telescope Halt">

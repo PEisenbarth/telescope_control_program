@@ -29,7 +29,7 @@ class Vars(Queue):
         self.catalogue = Catalogue(add_specials=True, add_stars=True)
         print 'Initialising Catalogues...'
 
-        filedir = '/Users/eisenbarth/Desktop/telescope_control_repo/telescope_control_program/telescopecontrol'
+        filedir = '/home/telescopecontrol/PhilippE/telescope_control/telescopecontrol'
         #
         # # Hipparcos Catalogue
         # filename = os.path.join(filedir, 'Catalogues/hipparcos.edb')

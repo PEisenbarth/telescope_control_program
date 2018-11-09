@@ -31,8 +31,11 @@ def show_telescopes():
 def halt_telescopes():
     OVST.haltTelescopes()
 
-def clear_fault(rollover):
+def clear_fault(rollover=None):
     OVST.clearTelescopeFault(rollover)
+
+def clear_halt():
+    OVST.clearTelescopeHalt()
 
 
 ### Moving Commands ###
@@ -111,7 +114,8 @@ def current_track():
 def pending_tracks():
     if trackq.track_Queue.empty():
         return None
-    return trackq.track_Queue.queue
+    pending = trackq.track_Queue.queue
+    return pending
 
 def delete_track(num=None):
     if not isinstance(num, int):

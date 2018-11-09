@@ -39,7 +39,7 @@ def check_target(OVST, target, tmstmp=None, check=True):
     az = [item[0] for item in azel]
     el = [item[1] for item in azel]
     if check:
-        if all((OVST.az_limit[1] < i < OVST.az_limit[0] for i in az)) or all(i < OVST.el_limit[0] for i in el):
+        if all((OVST.az_limit[1]-2 < i < OVST.az_limit[0]+2 for i in az)) or all(i < OVST.el_limit[0]+1 for i in el):
             # print 'target cannot get focused (target at azimuth %.2f and elevation %.2f)\n' \
             #  'Allowed limits: az no in range of 150-173 and elevation > 25'%(az, el)
             raise LookupError('target cannot get focused at % s (target at azimuth %.2f and elevation %.2f).\n '
@@ -70,3 +70,20 @@ def check_available(OVST, targ):
     if in_Range:
         print 'In range on %s \tat position az: %.2f, el: %.2f' %(time.ctime(tmsp)[0:16], azel[0][0], azel[0][1])
         return azel
+
+def filter_catalogue(OVST):
+    '''
+
+    :return: list with all targets, which are in telescope range
+    '''
+    inRange = []
+    for tar in OVST.Catalogue.iternames():
+        target = [tar]
+        try:
+            azel = check_target(OVST, tar)
+            target.append(round(azel[0][0], 4))
+            target.append(round(azel[0][1], 4))
+            inRange.append(target)
+        except:
+            pass
+    return inRange

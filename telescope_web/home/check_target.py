@@ -25,7 +25,7 @@ def check_target(OVST, tar,tmstmp=None, check=True):
     az = [item[0] for item in azel]
     el = [item[1] for item in azel]
     if check:
-        if all((150 < i < 173 for i in az)) or all(i < 25 for i in el):
+        if all((148 < i < 175 for i in az)) or all(i < 26 for i in el):
             #print 'target cannot get focused (target at azimuth %.2f and elevation %.2f)\n' \
                   #'Allowed limits: az no in range of 150-173 and elevation > 25'%(az, el)
             raise LookupError('target cannot get focused (target at azimuth %.2f and elevation %.2f).\n Allowed limits: az no in range of 150-173 and elevation > 25'%(azel[0][0], azel[0][1]))

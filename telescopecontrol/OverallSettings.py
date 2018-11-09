@@ -7,10 +7,11 @@ import time
 import os
 from wetton_settings import init_wetton_telescope
 from movingAdapter import moveIncrementalAdapter
-from check_target import check_target
+from check_target import check_target, filter_catalogue
 import h5py
 from datetime import datetime
 import numpy as np
+import threading
 # from KatCPServer import ServerThread
 
 
@@ -128,6 +129,10 @@ class OverallSettings(object):
 
         self.active_antennas = self.antennaList
 
+        # Start update of targets in range
+        self.update_time = None
+        self.in_range = None
+        threading.Thread(target=self.check_in_range, args=(True,)).start()
 
         # Start a server thread
         # SrvrThrd=ServerThread() #TODO enable it and import. The Serverthread has not implemented all methods now.
@@ -159,7 +164,7 @@ class OverallSettings(object):
             self.inHomePosition = False
             self.askRolloverCounter()
 
-    def askRolloverCounter(self, rollover):
+    def askRolloverCounter(self, rollover=None):
         """This method ask the user for the current rollover position.
         It will be called, if the previous session wasn't closed with quit() or exit()
         """
@@ -168,7 +173,7 @@ class OverallSettings(object):
             self.sensorList[i].raiseStatus = 3 # 'error'
             if self.sensorList[i].isAzimuth:
                 isInt=False
-                if len(rollover) == len(self.antennaList):
+                if rollover and len(rollover) == len(self.antennaList):
                     self.sensorList[i].rolloverCounter = rollover[n]
                 else:
                     while not isInt:
@@ -246,6 +251,19 @@ class OverallSettings(object):
 
         print 'Catalogues Initialised.'
 
+    def check_in_range(self, loop=False):
+        '''
+        Checks which targets in self.catalogue are in telescope range
+        :param loop: Checks every minute. Used for background update for the website
+        :return: 
+        '''
+        self.in_range = filter_catalogue(self)
+        self.update_time = datetime.now().time().isoformat()[:8]
+        while loop:
+            time.sleep(60)
+            self.in_range = filter_catalogue(self)
+            self.update_time = datetime.now().time().isoformat()[:8]
+
 ##### Set BackgroundUpdater #####
 
     def setBackgroundUpdater(self):
@@ -259,18 +277,16 @@ class OverallSettings(object):
 
 ##### Enable, Disable Telescoepe #####
 
-    def choose_telescopes(self, telescope='all'):
+    def choose_telescopes(self, telescopes=None):
         # choose the antennas you want to move
-        if telescope == 'all':
+        self.active_antennas = []
+        if not telescopes:
             self.active_antennas = self.antennaList
-        elif telescope == 'shed side' or telescope == 'shed':
-            self.active_antennas = self.antennaList[0]
-        elif telescope == 'stairs side' or telescope == 'stairs':
-            self.active_antennas = self.antennaList[1]
-        else:
-            self.active_antennas = self.antennaList
-            print 'telescope not found. all telescopes were chosen'
-
+        if not isinstance(telescopes,list):
+            telescopes = [telescopes]
+        for ant in telescopes:
+            if ant in self.antennaList:
+                self.active_antennas.append(ant)
         if not isinstance(self.active_antennas, list):
             self.active_antennas = [self.active_antennas]
 
@@ -324,37 +340,8 @@ class OverallSettings(object):
                 time.sleep(2)
         print "Telescopes Disabled at %s."%Timestamp().to_string()
 
-    def haltCurrentTrackAndCatalogue(self):
-        '''Halts the current working 'TrackCatalogue' Thread. 
-        The running 'TrackTarget' Thread is killed. It will be append to the end of Track Catalogue.
-        '''
-        try:
-            self.currentTrack.halt = True
-            print "Current Track will be halted."
-        except AttributeError:
-            # There is no Catalogue tracked
-            print "There was no current Track defined."
-        try:
-            self.currentCatalogue.halt = True
-            print "Current Catalogue will be halted."
-        except AttributeError:
-            # There is no Catalogue tracked
-            print "There was no current Catalogue defined."
 
-    def deleteCurrentTrackAndCatalogue(self):
-        '''It halts the current Track and Catalogue using :meth: 'haltCurrentTrackAndCatalogue', which also kills the current Thread of 'TrackTarget'
-        The current Thread of 'TrackCatalogue' will also be killed.
-        It takes some seconds until the Threads are killed.
-        '''
-        self.haltCurrentTrackAndCatalogue()
-        try:
-            self.currentCatalogue.kill = True
-            print "Current Catalogue will be killed."
-        except AttributeError:
-            #There is no Catalogue tracked
-            print "There was no current Catalogue defined."
-
-    def clearTelescopeFault(self):
+    def clearTelescopeFault(self, rollover=None):
         '''Clear the telescope from faults, when a fault has occured
         It also clears the software fault
 
@@ -364,7 +351,7 @@ class OverallSettings(object):
             Enable the Telescope
         '''
         self.PCQ.writeTask(22,1)
-        self.askRolloverCounter()
+        self.askRolloverCounter(rollover)
         self.error = False
 
         self.clearTelescopeHalt()

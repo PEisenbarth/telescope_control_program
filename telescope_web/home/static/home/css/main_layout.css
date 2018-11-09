@@ -1,8 +1,10 @@
 body {
     background-color:#e6e6e6;
 }
+
 .main_container{
 }
+
 .header{
     background-color: #002147;
     color: white;
@@ -49,15 +51,14 @@ body {
     padding: 1% 0 0 1%;
 }
 .tab-pane{
-    margin-top:1.5%
+    margin-top:1.5%;
+    height:200px
 }
-
 
 .status_col {
     border-left:2px solid white;
     border-bottom: 2px solid white
 }
-
 
 .roach_row{
     margin: 0.5% 0 2% 0
@@ -69,11 +70,13 @@ body {
     -ms-overflow-style: -ms-autohiding-scrollbar;
     max-height: 250px;
 }
+
 .table-vertical-scroll tbody{
     table-layout:fixed;/* even columns width , fix width of table too*/
     overflow-y: auto;
     -ms-overflow-style: -ms-autohiding-scrollbar;
     }
+
 .table-vertical-scroll thead{
     table-layout:fixed;/* even columns width , fix width of table too*/
 }
@@ -84,5 +87,3 @@ thead{
     margin: 0 0 0 0
 }
 
-.table-in-range{
-}

@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     url('home', views.index, name='index'),
-    url('track', views.track, name='track'),
+    url('track', views.tracks, name='track'),
     url('pointing', views.pointing, name='pointing'),
     url('tel_settings', views.tel_settings, name='tel_settings'),
     url(r'^$', views.index, name='index'),

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.shortcuts import render, redirect
-# from telescopecontrol.commands import *
-# from telescopecontrol.check_target import *
-from .check_target import *
-from .commands import *
+from telescopecontrol.commands import *
+from telescopecontrol.check_target import *
+# from .check_target import *
+# from .commands import *
 from update_Status import update
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 
 # TODO: Implement Telescope Settings
-# update(OVST)
+update(OVST)
 
 def index(request):
     return render(request, 'home/home.html')
@@ -25,7 +25,7 @@ def getvalue(request, name, val_type):
         return None
 
 #@login_required(login_url='/login')
-def track(request): # TODO
+def tracks(request): # TODO
     '''
     This is the view function for /track. It checks if a form for a tracking mode was submitted and calls the corresponding 
     funciton. After that, the user gets redirected to /track
@@ -59,11 +59,11 @@ def track(request): # TODO
     except:
         pass
     if request.GET.get('submit_track'):
-        try:
-            print 'tracking %s for %i minutes' % (target, duration)
-            track(target, duration, startTime)
-        except:
-            pass
+
+        track(target, duration, startTime)
+        print 'tracking %s for %i minutes' % (target, duration)
+
+
         return redirect('/track')
 
     if request.GET.get('submit_cross'):
@@ -202,16 +202,14 @@ def tel_settings(request):
     if request.GET.get('submit_clear_fault'):
         rollover = []
         for i, ant in enumerate(OVST.antennaList):
-            rollover.append(request.GET.get('rollover%i'%i))
-        clear_fault()
+            rollover.append(int(request.GET.get('rollover%i'%i)))
+        clear_fault(rollover)
 
     if request.GET.get('submit_halt'):
         halt_telescopes()
-        return redirect('/tel_settings')
 
     if request.GET.get('submit_clear_halt'):
         clear_halt()
-        return redirect('/tel_settings')
 
     context['antennas'] = [ant.name for ant in OVST.antennaList]
     context['active_antennas'] = [ant.name for ant in OVST.active_antennas]

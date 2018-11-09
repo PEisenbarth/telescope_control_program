@@ -33,7 +33,7 @@ def update(OVST):
                 elif statuscode == 6:
                     color = "blue"
                 div_list.append(html_div(status, 'status%i'%n, color))
-            with file(os.path.dirname(__file__)+'/templates/updated_content.html', 'w') as up:
+            with file(os.path.dirname(__file__)+'/templates/home/updated_content.html', 'w') as up:
                 for div in div_list:
                     up.write(div)
             time.sleep(0.5)
