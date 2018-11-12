@@ -118,7 +118,7 @@ class TrackTarget:
         if isinstance(targetname, Target):
             self.targetname = targetname
         self.moveIncrementalTime = moveIncrementalTime
-        self.sleepingTimeSec = 0.01
+        self.sleepingTimeSec = 1
         self.targetname = targetname
 
         self.observationDuration = observationDuration*60

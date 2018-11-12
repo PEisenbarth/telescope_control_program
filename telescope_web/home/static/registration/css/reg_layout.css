@@ -6,11 +6,8 @@
 body {
     height:100vh;
     background: #002147;
-    /* fallback for old browsers */
     background: -webkit-linear-gradient(to right, #002147, #65C7F7, #002147);
-    /* Chrome 10-25, Safari 5.1-6 */
     background: linear-gradient(#002147, #002147, #e6e6e6);
-    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
 .card-signin {
@@ -64,7 +61,6 @@ body {
   display: block;
   width: 100%;
   margin-bottom: 0;
-  /* Override default `<label>` margin */
   line-height: 1.5;
   color: #495057;
   border: 1px solid transparent;

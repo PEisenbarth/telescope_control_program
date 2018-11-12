@@ -21,7 +21,7 @@ def update(OVST):
                 if statuscode == 0:
                     color = "white"
                 elif statuscode == 1:
-                    color = "#11d419"
+                    color = "limegreen"
                 elif statuscode == 2:
                     color = "yellow"
                 elif statuscode == 3:

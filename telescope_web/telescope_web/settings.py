@@ -131,5 +131,6 @@ STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
 # Duration after the user gets logged out in seconds
-SESSION_COOKIE_AGE = 10 * 60
+SESSION_COOKIE_AGE = 60 * 60

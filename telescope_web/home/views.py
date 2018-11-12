@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.shortcuts import render, redirect
-# from telescopecontrol.commands import *
-# from telescopecontrol.check_target import *
-from .check_target import *
-from .commands import *
+from telescopecontrol.commands import *
+from telescopecontrol.check_target import *
+# from .check_target import *
+# from .commands import *
 from update_Status import update
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,21 +12,22 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils.safestring import mark_safe
 
-# TODO: Implement Telescope Settings
-# update(OVST)
+update(OVST)
+
+
+def getvalue(request, name, val_type):
+    """ 
+        Converts the value of the html form element 'name' into 'val_type'
+    """
+    try:
+        return val_type(request.GET.get(name))
+    except:
+        return None
 
 
 @login_required()
 def index(request):
     return render(request, 'home/home.html')
-
-
-def getvalue(request, name, val_type):
-    # Converts the value of the html form element 'name' into 'val_type'
-    try:
-        return val_type(request.GET.get(name))
-    except:
-        return None
 
 
 @login_required()
@@ -49,7 +50,7 @@ def tracks(request): # TODO
             'startTime':    current[2],
             'mode':         current[3]
         }
-    context['pending_tracks'] = pending_tracks()
+    context['pending_tracks'] = pending_tracks()        # FIXME: Change ObservationMode object to ObsevationMode name
     if context['pending_tracks']:
         # Change the 'ObservationMode' object to the name of the mode so that the name gets displayed on the website
         # for i, pending in enumerate(context['pending_tracks']):
@@ -147,9 +148,9 @@ def tracks(request): # TODO
 
 @login_required()
 def pointing(request):
-    '''
+    """
     View for the /pointing site
-    '''
+    """
     context = {'nbar': 'pointing'}
     if request.GET.get('moveazel'):
         try:
@@ -230,6 +231,7 @@ def updated_content(request):
 
 @login_required()
 def change_password(request):
+    """Allows users to change their password on their own"""
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
