@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.shortcuts import render, redirect
-from telescopecontrol.commands import *
-from telescopecontrol.check_target import *
-# from .check_target import *
-# from .commands import *
+# from telescopecontrol.commands import *
+# from telescopecontrol.check_target import *
+from .check_target import *
+from .commands import *
 from update_Status import update
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.utils.safestring import mark_safe
 
 # TODO: Implement Telescope Settings
-update(OVST)
+# update(OVST)
 
+
+@login_required()
 def index(request):
     return render(request, 'home/home.html')
 
@@ -24,7 +28,8 @@ def getvalue(request, name, val_type):
     except:
         return None
 
-#@login_required(login_url='/login')
+
+@login_required()
 def tracks(request): # TODO
     '''
     This is the view function for /track. It checks if a form for a tracking mode was submitted and calls the corresponding 
@@ -140,6 +145,7 @@ def tracks(request): # TODO
     return render(request, 'home/track.html', context)
 
 
+@login_required()
 def pointing(request):
     '''
     View for the /pointing site
@@ -184,6 +190,7 @@ def pointing(request):
     return render(request, 'home/pointing.html', context)
 
 
+@login_required()
 def tel_settings(request):
     context = {'nbar': 'tel_settings',
                'halt':  OVST.halt}
@@ -221,4 +228,20 @@ def updated_content(request):
     return render(request, 'home/updated_content.html')
 
 
-
+@login_required()
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request,
+                             mark_safe("Your password was updated successfully! Go back to <a href='/'>Home</a>"))
+            return redirect('change_password')
+        else:
+            messages.error(request, 'There was an error changing the password')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'registration/change_password.html', {
+        'form': form
+    })

@@ -1,0 +1,41 @@
+{% extends 'registration/layout.html' %}
+
+{% block content %}
+  <!--<h2>Login</h2>-->
+  <!--<form method="post">-->
+    <!--{% csrf_token %}-->
+    <!--{{ form.as_p }}-->
+    <!--<button type="submit">Login</button>-->
+  <!--</form>-->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+        <div class="card card-signin my-5">
+          <div class="card-body">
+            <h5 class="card-title text-center">Sign In</h5>
+            <form class="form-signin" method="post">
+              {% csrf_token %}
+              {% if form.errors%}
+              <div class="alert alert-danger" style="font-size:0.8em">
+                Wrong username or password. Please try again
+              </div>
+              {% else %}
+              <p style="font-size:11px; text-align:center">Please log in beofre you can use the control panel</p>
+              {% endif %}
+              <div class="form-label-group">
+                <input class="form-control" type="text" name="username" autofocus="" required="" id="id_username" maxlength="254" placeholder="Username">
+                <label for="id_username">Username</label>
+              </div>
+              <div class="form-label-group">
+                <input class="form-control" type="password" name="password" required="" id="id_password" placeholder="Password">
+                <label for="id_password">Password</label>
+              </div>
+              <button class="btn btn-lg btn-block text-uppercase" style="background-color:#002147; color:white" type="submit">Sign in</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

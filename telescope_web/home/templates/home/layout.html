@@ -7,15 +7,34 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'home/img/favicon.png' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'home/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'home/css/main_layout.css' %}">
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="{% static 'home/js/bootstrap.min.js' %}"></script>
     {% block scripts %}
     {% endblock %}
 </head>
 <body onload="update_func()">
 <div class="header">
-    <h3><a class="headerlink" href="/"><img src="{% static 'home/img/logo.png' %}" width="80px" alt=""> Wetton Telescope Control Panel</a></h3>
+  <div class="row align-items-center">
+    <div class="col">
+      <h3><a class="headerlink" href="/"><img src="{% static 'home/img/logo.png' %}" width="80px" alt=""> Wetton Telescope Control Panel</a></h3>
+    </div>
+    <div class="col logout">
+      <div class="dropdown">
+        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ user.username }}
+        </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {% if user.is_superuser %}
+              <a class="dropdown-item" href="/admin">Admin-Panel</a>
+              <div class="dropdown-divider"></div>
+            {% endif %}
+            <a class="dropdown-item" href="/password">Change Password</a>
+            <a class="dropdown-item" href="/logout">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="container-fluid main_container">
     <div class="row main_row">

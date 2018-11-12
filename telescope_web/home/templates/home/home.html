@@ -1,5 +1,15 @@
 {% extends "home/layout.html" %}
 
 {% block content %}
-<h5>Welcome to the Wetton Telescope Control Panel!</h5>
+<h4>Welcome to the Wetton Telescope Control Panel!</h4>
+
+{% if user.is_authenticated%}
+
+<p>You're logged in as <strong>{{ user.username }}</strong></p>
+
+{% else %}
+
+<p>Not logged in</p>
+
+{% endif %}
 {% endblock %}
