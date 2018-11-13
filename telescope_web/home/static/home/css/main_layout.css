@@ -73,6 +73,13 @@ body {
     border-left:2px solid white;
     border-bottom: 2px solid white;
 }
+.readout{
+    padding:0;
+}
+
+.mpl svg{
+    width:200pt;
+}
 
 .roach_row{
     margin: 0.5% 0 2% 0;

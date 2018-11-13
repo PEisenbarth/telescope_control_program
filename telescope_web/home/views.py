@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
-from telescopecontrol.commands import *
+from django.utils.safestring import mark_safe
 from telescopecontrol.check_target import *
+from telescopecontrol.commands import *
 # from .check_target import *
 # from .commands import *
 from update_Status import update
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
-from django.utils.safestring import mark_safe
+from Monitor_hr4 import RoachReadout
 
 update(OVST)
+roach = RoachReadout()
 
 
 def getvalue(request, name, val_type):
@@ -24,10 +27,20 @@ def getvalue(request, name, val_type):
     except:
         return None
 
+def check_roach(request):
+    '''Checks if settings on the Roachboard Readout were done'''
+    if request.GET.get('submit_start_readout'):
+        if not roach.running:
+            threading.Thread(target=roach.run).start()
+    if request.GET.get('submit_stop_readout'):
+        roach.running = False
+        roach.__init__()
+    return {'roach': {'running': roach.running}}
 
 @login_required()
 def index(request):
-    return render(request, 'home/home.html')
+    context = check_roach(request)
+    return render(request, 'home/home.html', context)
 
 
 @login_required()
@@ -38,7 +51,8 @@ def tracks(request): # TODO
     The keys of the dictionaries must have the same name as the kwargs in ObservationMode of the telescope control
     program
     '''
-    context = {'nbar': 'track'}
+    context = check_roach(request)
+    context ['nbar'] = 'track'
     current = current_track()
     context['in_range'] = OVST.in_range
     context['update_time'] = OVST.update_time
@@ -120,7 +134,6 @@ def tracks(request): # TODO
         return redirect('/track')
 
     del_track = request.GET.get('del_track')
-    print del_track
     if del_track:
         if del_track == 'current':
             stop_track()
@@ -151,7 +164,8 @@ def pointing(request):
     """
     View for the /pointing site
     """
-    context = {'nbar': 'pointing'}
+    context = check_roach(request)
+    context['nbar'] = 'pointing'
     if request.GET.get('moveazel'):
         try:
             az = float(request.GET.get('az'))
@@ -193,8 +207,9 @@ def pointing(request):
 
 @login_required()
 def tel_settings(request):
-    context = {'nbar': 'tel_settings',
-               'halt':  OVST.halt}
+    context = check_roach(request)
+    context.update({'nbar': 'tel_settings',
+                    'halt':  OVST.halt})
     if request.GET.get('submit_choose_antennas'):
         antennas = []
         for i, ant in enumerate(OVST.antennaList):
@@ -225,9 +240,6 @@ def tel_settings(request):
     return render(request, 'home/tel_settings.html', context)
 
 
-def updated_content(request):
-    return render(request, 'home/updated_content.html')
-
 
 @login_required()
 def change_password(request):
@@ -247,3 +259,10 @@ def change_password(request):
     return render(request, 'registration/change_password.html', {
         'form': form
     })
+
+
+def updated_content(request):
+    return render(request, 'home/updated_content.html')
+
+def roach_plot(request):
+    return render(request, 'home/roach_plot.svg')

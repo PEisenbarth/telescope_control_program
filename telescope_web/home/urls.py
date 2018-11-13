@@ -8,5 +8,6 @@ urlpatterns = [
     url('tel_settings', views.tel_settings, name='tel_settings'),
     url('password', views.change_password, name='change_password'),
     url(r'^$', views.index, name='index'),
-    url('updated_content', views.updated_content, name='update')
+    url('updated_content', views.updated_content, name='update'),
+    url('roach_plot', views.roach_plot, name='roach_plot')
 ]

@@ -1,0 +1,29 @@
+<div class="row roach_row">
+    <div class="col readout">
+        <div class="mpl img-fill"></div>
+            {% if roach.running %}
+                <img class="rounded img-fluid" src="." id="roach_plot">
+                <div class="mpl"></div>
+                <script>
+                    function load_roach(){
+                        {% load static %}
+                        document.getElementById('roach_plot').src = "{% static 'home/img/roach.png' %}";
+                    };
+                    load_roach()
+                    setInterval(load_roach,1000)
+                </script>
+            {% else %}
+                <p>Roachboard Readout is currently not running</p>
+            {% endif %}
+
+    </div>
+    <div class="col settings">
+        <form action="#">
+            {% if roach.running %}
+                <input type="submit" class="btn btn-outline-submit" name="submit_stop_readout" value="Stop Readout">
+            {% else %}
+                <input type="submit" class="btn btn-outline-submit" name="submit_start_readout" value="Start Readout">
+            {% endif %}
+        </form>
+    </div>
+</div>
