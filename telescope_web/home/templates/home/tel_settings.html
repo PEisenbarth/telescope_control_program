@@ -2,52 +2,63 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-6">
-        <h5>Choose telescopes</h5>
-        <p style="margin:0">Green telescopes are chosen</p>
-        <form action="#">
+  <div class="col-6">
+    <h5>Choose telescopes</h5>
+    <p style="margin:0">Green telescopes are chosen</p>
+    <form action="#">
 
-            {% for antenna in antennas%}
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <div class="input-group-text">
-                        <input type="checkbox" id="cbx{{ forloop.counter0 }}" class="boxes" name="antenna{{ forloop.counter0 }}" value="{{ antenna }}">
-                    </div>
-                </div>
-                <div class="input-group-append">
-                    {% if antenna in active_antennas%}
-                        <span class="input-group-text" style="background-color:limegreen">{{ antenna }}</span>
-                    {% else %}
-                        <span class="input-group-text">{{ antenna }}</span>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-            <input type="submit" id="sub" class="btn btn-outline-secondary" style="margin-top:1%" name="submit_choose_antennas" value="Choose Antennas">
-        </form>
-        <br>
+      {% for antenna in antennas%}
+      <div class="input-group mb-0">
+        <div class="input-group-prepend">
+          <div class="input-group-text">
+              <input type="checkbox" id="cbx{{ forloop.counter0 }}" class="boxes" name="antenna{{ forloop.counter0 }}" value="{{ antenna }}">
+          </div>
+        </div>
+        <div class="input-group-append">
+          {% if antenna in active_antennas%}
+            <span class="input-group-text" style="background-color:limegreen">{{ antenna }}</span>
+          {% else %}
+            <span class="input-group-text">{{ antenna }}</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+      <input type="submit" id="sub" class="btn btn-outline-secondary" style="margin-top:1%" name="submit_choose_antennas" value="Choose Antennas">
+    </form>
+    <br>
+    <div class="input-group">
+        <div class="input-group-prepend">
+          <div class="input-group-text">Modubs Connection</div>
+        </div>
+
+          <div class="btn-group" style="font-size:10px">
+            <a href="/tel_settings?modbus_connection=open"><button type="button" class="btn btn-outline-secondary">Open</button></a>
+            <a href="/tel_settings?modbus_connection=close"><button type="button" class="btn btn-outline-secondary">Close</button></a>
+        </div>
     </div>
+
+  </div>
     <div class="col-6">
-        <h5>Clear telescope Fault</h5>
-        <p style="margin:0">Type in the rollover of the left named telescopes</p>
-        <form action="#">
-            {% for antenna in antennas %}
-            <div class="input-group w-50">
-                <input type="number" required min="-1" max="0" class="form-control" placeholder="rollover" name="rollover{{forloop.counter0}}">
-            </div>
-            {% endfor %}
-            <input type="submit" class="btn btn-outline-secondary" style="margin-top:1%" name="submit_clear_fault" value="Clear Fault">
-        </form>
-        <br>
-        <form action="#">
-            <div class="text-center">
-                {% if not halt%}
-                    <input type="submit" class="btn btn-outline-secondary w-50" name="submit_halt" value="Halt Telescopes">
-                {% else %}
-                    <input type="submit" class="btn btn-outline-secondary w-50" name="submit_clear_halt" value="Clear Telescope Halt">
-                {% endif %}
-            </div>
-        </form>
+      <h5>Clear telescope Fault</h5>
+      <p style="margin:0">Type in the rollover of the left named telescopes</p>
+      <form action="#">
+        {% for antenna in antennas %}
+        <div class="input-group w-50">
+          <input type="number" required min="-1" max="0" class="form-control" placeholder="rollover" name="rollover{{forloop.counter0}}">
+        </div>
+        {% endfor %}
+        <input type="submit" class="btn btn-outline-secondary" style="margin-top:1%" name="submit_clear_fault" value="Clear Fault">
+      </form>
+      <br>
+      <form action="#">
+        <div class="text-center">
+          {% if not halt%}
+            <input type="submit" class="btn btn-outline-secondary w-50" name="submit_halt" value="Halt Telescopes">
+          {% else %}
+            <input type="submit" class="btn btn-outline-secondary w-50" name="submit_clear_halt" value="Clear Telescope Halt">
+          {% endif %}
+        </div>
+      </form>
     </div>
 </div>
 

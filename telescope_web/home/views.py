@@ -12,7 +12,7 @@ from telescopecontrol.commands import *
 # from .check_target import *
 # from .commands import *
 from update_Status import update
-from Monitor_hr4 import RoachReadout
+from roachboard_readout import RoachReadout
 
 update(OVST)
 roach = RoachReadout()
@@ -30,12 +30,51 @@ def getvalue(request, name, val_type):
 def check_roach(request):
     '''Checks if settings on the Roachboard Readout were done'''
     if request.GET.get('submit_start_readout'):
+        roach.__init__()    # Reinitialise to make sure to have default values
         if not roach.running:
+            bof = getvalue(request, 'select_bof', int)
+            acc_len = getvalue(request, 'tbx_acc_len', eval)
+            plot_min = getvalue(request, 'tbx_plot_min', int)
+            plot_max = getvalue(request, 'tbx_plot_max', int)
+
+            if bof != None:
+                roach.bitstream = roach.boffiles[bof]
+            if acc_len:
+                roach.acc_len = acc_len
+            try:    # Convert gain string to hex
+                gain = int(request.GET.get('tbx_gain'), 16)
+                if gain:
+                    roach.gain = gain
+            except:
+                pass
+            if plot_min:
+                roach.plot_lims[0] = plot_min
+            if plot_max:
+                roach.plot_lims[1] = plot_max
+            if request.GET.get('cbx_save_roach'):
+                roach.save = True
+                print 'Saving data'
             threading.Thread(target=roach.run).start()
+
     if request.GET.get('submit_stop_readout'):
         roach.running = False
-        roach.__init__()
-    return {'roach': {'running': roach.running}}
+        while roach.save:   # Wait until Data is saved
+            time.sleep(1)
+
+
+    if request.GET.get('submit_eval'):
+        val = getvalue(request, 'tbx_val', eval)
+        print val
+    return {'roach': {'running':    roach.running,
+                      'boffiles':   roach.boffiles,
+                      'boffile':    roach.bitstream,
+                      'acc_len':    roach.acc_len,
+                      'gain':       roach.gain,
+                      'connected':  roach.fpga.is_connected() if roach.fpga else None,
+                      'plot_min':   roach.plot_lims[0],
+                      'plot_max':   roach.plot_lims[1]
+                      }
+            }
 
 @login_required()
 def index(request):
@@ -65,11 +104,7 @@ def tracks(request): # TODO
             'mode':         current[3]
         }
     context['pending_tracks'] = pending_tracks()        # FIXME: Change ObservationMode object to ObsevationMode name
-    if context['pending_tracks']:
-        # Change the 'ObservationMode' object to the name of the mode so that the name gets displayed on the website
-        # for i, pending in enumerate(context['pending_tracks']):
-        #     context['pending_tracks'][i][5] = pending[5].mode
-        pass
+
     try:
         target = str(request.GET.get('target'))
         duration = int(request.GET.get('duration'))
@@ -233,6 +268,12 @@ def tel_settings(request):
 
     if request.GET.get('submit_clear_halt'):
         clear_halt()
+    if request.GET.get('modbus_connection'):
+        mod = getvalue(request, 'modbus_connection', str)
+        if mod == 'open':
+            OVST.openModbusConnections()
+        else:
+            OVST.closeAllModbusConnections()
 
     context['antennas'] = [ant.name for ant in OVST.antennaList]
     context['active_antennas'] = [ant.name for ant in OVST.active_antennas]
@@ -265,4 +306,4 @@ def updated_content(request):
     return render(request, 'home/updated_content.html')
 
 def roach_plot(request):
-    return render(request, 'home/roach_plot.svg')
+    return render(request, 'home/roach_plot.html')

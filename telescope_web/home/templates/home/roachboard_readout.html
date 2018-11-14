@@ -1,29 +1,87 @@
 <div class="row roach_row">
-    <div class="col readout">
-        <div class="mpl img-fill"></div>
-            {% if roach.running %}
-                <img class="rounded img-fluid" src="." id="roach_plot">
-                <div class="mpl"></div>
-                <script>
-                    function load_roach(){
-                        {% load static %}
-                        document.getElementById('roach_plot').src = "{% static 'home/img/roach.png' %}";
-                    };
-                    load_roach()
-                    setInterval(load_roach,1000)
-                </script>
-            {% else %}
-                <p>Roachboard Readout is currently not running</p>
-            {% endif %}
+  <div class="col readout">
+    {% if roach.running %}
+      <svg id="mpl" version="1.1" viewBox="0 0 504 360" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      </svg>
+      <script>
+          function load_roach(){
+              $("#mpl").load("roach_plot #figure_1");
+          };
+          load_roach()
+          setInterval(load_roach,1000)
+      </script>
+      {% else %}
+      <h6>Roachboard Readout is currently not running</h6>
+    {% endif %}
 
-    </div>
+  </div>
     <div class="col settings">
+      <div class="input-group mb-2">
+        <div class="input-group-prepend">
+          <div class="input-group-text">FPGA connection</div>
+        </div>
+        <div class="input-group-text" style="{% if roach.connected %}color:limegreen {% else %} color:red {% endif %}">
+          {% if roach.connected %}
+            Connected
+          {% else %}
+            Disconnected
+          {% endif %}
+        </div>
+      </div>
         <form action="#">
-            {% if roach.running %}
-                <input type="submit" class="btn btn-outline-submit" name="submit_stop_readout" value="Stop Readout">
-            {% else %}
-                <input type="submit" class="btn btn-outline-submit" name="submit_start_readout" value="Start Readout">
-            {% endif %}
+          <form action="#">
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <label class="input-group-text" for="select_bof">Boffile</label>
+              </div>
+              <select class="custom-select" id="select_bof" {% if roach.running %} disabled {% endif %} name="select_bof">
+                {% if roach.running %}
+                <option selected>{{ roach.boffile }}</option>
+                {% else %}
+                <option selected>Choose...</option>
+                {% for bof in roach.boffiles %}
+                <option value="{{ forloop.counter0 }}">{{ bof }}</option>
+                {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Accumulation Length</div>
+              </div>
+              <input type="text" class="form-control" {% if roach.running%} disabled placeholder="{{ roach.acc_len }}"{% else %} placeholder="Default: 2**19 (=524288)" {% endif %} name="tbx_acc_len">
+            </div>
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Gain</div>
+              </div>
+              <input type="text" class="form-control" {% if roach.running%} disabled placeholder="{{ roach.gain }}"{% else %} placeholder="Default: 0x0fffffff" {% endif %} name="tbx_gain">
+            </div>
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <input type="checkbox" id="cbx_save_roach" class="boxes" name="cbx_save_roach" value="Save Data" {% if roach.running %} disabled {% endif %}>
+                </div>
+              </div>
+              <div class="input-group-append">
+                <span class="input-group-text">Save Data</span>
+              </div>
+            </div>
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Plot limits</div>
+              </div>
+              <input type="number" step="1" class="form-control" name="tbx_plot_min" {% if roach.running %} disabled placeholder="{{ roach.plot_min }}" {% else %} placeholder="Min default: 13750" {% endif %}>
+              <input type="number" step="1" class="form-control" name="tbx_plot_max" {% if roach.running %} disabled placeholder="{{ roach.plot_max }}" {% else %} placeholder="Max default: 13800" {% endif %}>
+            </div>
+
+          {% if roach.running %}
+            <input type="submit" class="btn btn-outline-secondary" name="submit_stop_readout" value="Stop Readout">
+          {% else %}
+            <input type="submit" class="btn btn-outline-secondary" name="submit_start_readout" value="Connect and Start Readout">
+          </form>
+          <br>
+          {% endif %}
         </form>
     </div>
 </div>

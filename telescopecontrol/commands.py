@@ -114,7 +114,10 @@ def current_track():
 def pending_tracks():
     if trackq.track_Queue.empty():
         return None
-    pending = trackq.track_Queue.queue
+    pending = list(trackq.track_Queue.queue)
+    for i, pen in enumerate(pending):
+        if pen[5]:
+            pending[i].append(pen[5].mode)    # Add the name of the mode
     return pending
 
 def delete_track(num=None):

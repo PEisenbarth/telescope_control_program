@@ -52,8 +52,8 @@ class TrackTarget:
 
             if not checkAbsoluteSequenceHitsLimitSwitch(self.OVST, self.startTimeStamp, observationDuration*60,
                                                         targetname, mode)[0]:
-                self.track_Queue.put((targetname, observationDuration, GoOffAzEl, self.startTimeStamp, moveIncrementalTime,
-                                      mode))
+                self.track_Queue.put([targetname, observationDuration, GoOffAzEl, self.startTimeStamp, moveIncrementalTime,
+                                      mode])
                 print 'target put into queue'
                 if not self.running:
                     self.th = threading.Thread(target=self._tracking_thread)
