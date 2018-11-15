@@ -135,7 +135,7 @@ class ObservationMode(object):
 
         #Transform minutes in seconds
         self.periodeGoOff = periodeGoOff*60
-        # The ab   solute value of off values in a list
+        # The absolute value of off values in a list
         self.goOffMax=[azGoOff, elGoOff]
         # The sequence
         self.goOffSequence = goOffSequence

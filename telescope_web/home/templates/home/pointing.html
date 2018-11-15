@@ -1,5 +1,13 @@
 {% extends 'home/layout.html' %}
 
+{% block scripts %}
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+</script>
+{% endblock %}
+
 {% block content %}
     <ul class="nav nav-tabs" id="pointingtabs" role="tablist">
       <li class="nav-item">
@@ -19,11 +27,12 @@
     </ul>
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="move" role="tabpanel" aria-labelledby="home-tab">
-        <h4>Move telescopes in Home position</h4>
-        <form action="#">
-            <input type="submit" class='btn btn-outline-secondary' name="home" value="Move Home Position">
+        <h4>Special positions</h4>
+        <form action="#" class="mb-3">
+          <input type="submit" class='btn btn-outline-secondary btn-md special_pos' data-delay='{"show":"200"}' data-toggle="tooltip" data-placement="bottom" data-html="true" title="Moves telescopes to: <br>az: 18, el: 90" name="home" value="Move Home Position">
+          <input type="submit" class='btn btn-outline-secondary btn-md special_pos' data-delay='{"show":"200"}' data-toggle="tooltip" data-placement="bottom" title="Moves telescopes to elevation 90° at their azimuth" name="safety" value="Move Safety Position">
         </form>
-        <h4>Shutdown control Program</h4>
+        <h4>Shutdown control program</h4>
         <form action="#">
             <input type="submit" class='btn btn-outline-danger' name="quit" value="Shut down">
         </form>
@@ -37,7 +46,7 @@
                   <input type="number" step="0.01" required aria-label="Azimuth" name="az" size="2" placeholder="Azimuth" class="form-control">
                   <input type="number" step="0.01" required aria-label="Elevation" name="el" size="2" placeholder="Elevation" class="form-control">
                   <div class="input-group-append">
-                    <input class="btn btn-outline-secondary" type='submit' name="moveazel" value="Move Azel">
+                    <input class="btn btn-outline-secondary" type='submit' name="moveazel" value="Move AzEl">
                   </div>
               </div>
             </form>
@@ -51,7 +60,7 @@
                     <input type="time" step="1" required aria-label="Ra" name="ra" size="2" placeholder="Right Ascension" class="form-control">
                     <input type="text" required aria-label="Dec" name="dec" size="2" placeholder="Declination" class="form-control">
                     <div class="input-group-append">
-                    <input class="btn btn-outline-secondary" type='submit' name="moveradec" value="Move Radec">
+                    <input class="btn btn-outline-secondary" type='submit' name="moveradec" value="Move RaDec">
                     </div>
                 </div>
             </form>
@@ -64,7 +73,7 @@
             <div class="input-group">
                 <input type="text" required aria-label="Targetname" name="target" size="2" placeholder="Targetname" class="form-control">
                 <div class="input-group-append">
-                <input class="btn btn-outline-secondary" type='submit' name="movetarget" value="Move to Target">
+                <input class="btn btn-outline-secondary" type='submit' name="movetarget" value="Move to target">
                 </div>
             </div>
           </form>

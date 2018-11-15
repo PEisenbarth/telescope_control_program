@@ -61,10 +61,6 @@ def check_roach(request):
         while roach.save:   # Wait until Data is saved
             time.sleep(1)
 
-
-    if request.GET.get('submit_eval'):
-        val = getvalue(request, 'tbx_val', eval)
-        print val
     return {'roach': {'running':    roach.running,
                       'boffiles':   roach.boffiles,
                       'boffile':    roach.bitstream,
@@ -104,7 +100,6 @@ def tracks(request): # TODO
             'mode':         current[3]
         }
     context['pending_tracks'] = pending_tracks()        # FIXME: Change ObservationMode object to ObsevationMode name
-
     try:
         target = str(request.GET.get('target'))
         duration = int(request.GET.get('duration'))
@@ -113,20 +108,16 @@ def tracks(request): # TODO
             startTime = None
     except:
         pass
+    GoOff = None
+    mode = None
     if request.GET.get('submit_track'):
-
-        track(target, duration, startTime)
         print 'tracking %s for %i minutes' % (target, duration)
-
-
-        return redirect('/track')
 
     if request.GET.get('submit_cross'):
         az_cross = float(request.GET.get('az_cross'))
         el_cross = float(request.GET.get('el_cross'))
-        track(target, duration, GoOff=(az_cross, el_cross), startTime=startTime)
+        GoOff = [az_cross, el_cross]
         print 'Doing Cross'
-        return redirect('/track')
 
     if request.GET.get('submit_lissajous'):
         lissajous_dict = {  'az_frame': getvalue(request, 'az_frame_lissajous', float),
@@ -136,10 +127,7 @@ def tracks(request): # TODO
                             'phiAz': getvalue(request, 'az_phi', float),
                             'phiEl': getvalue(request, 'el_phi', float)
                             }
-
         mode = mapping('Lissajous', **lissajous_dict)
-        track(target, duration, startTime=startTime, mode=mode)
-        return redirect('/track')
 
     if request.GET.get('submit_pong'):
         pong_dict = {   'az_frame':     getvalue(request, 'az_frame_pong', float),
@@ -150,8 +138,6 @@ def tracks(request): # TODO
                         'velocity':     getvalue(request, 'velocity', float)
         }
         mode = mapping('Pong', **pong_dict)
-        track(target, duration, startTime=startTime, mode=mode)
-        return redirect('/track')
 
     if request.GET.get('submit_raster'):
         raster_dict ={
@@ -162,7 +148,25 @@ def tracks(request): # TODO
             'observationDuration':  duration
             }
         mode = mapping('Raster', **raster_dict)
-        track(target, duration, startTime=startTime, mode=mode)
+
+    if request.GET.get('target'):
+        if mode:
+            tag, message = track(target, duration, GoOff=GoOff, startTime=startTime, mode=mode)
+            if tag == 'success':
+                messages.success(request, message)
+            elif tag == 'error':
+                messages.error(request, message)
+            else:
+                messages.info(request, message)
+        else:
+            tag, message = track(target, duration, GoOff=GoOff, startTime=startTime)
+            if tag == 'success':
+                messages.success(request, message)
+            elif tag == 'error':
+                messages.error(request, message)
+            else:
+                messages.info(request, message)
+        return redirect('/track')
 
     if request.GET.get('stop_all_tracks'):
         stop_all_tracks()
@@ -234,6 +238,9 @@ def pointing(request):
         home()
         print 'moving home'
         return redirect('/pointing')
+    if (request.GET.get('safety')):
+        safety()
+        return redirect('/pointing')
     if (request.GET.get('quit')):
         quit_tel()
         return redirect('/pointing')
@@ -252,9 +259,9 @@ def tel_settings(request):
                 antennas.append(ant)
         if len(antennas) == 0:
             choose_telescopes()
-        print 'antennas chosen:'
-        print antennas
         choose_telescopes(antennas)
+        names = [ant.name for ant in active_telescopes()]
+        messages.success(request, 'Telescopes chosen: %s' % names)
         return redirect('/tel_settings')
 
     if request.GET.get('submit_clear_fault'):
@@ -265,9 +272,14 @@ def tel_settings(request):
 
     if request.GET.get('submit_halt'):
         halt_telescopes()
+        if OVST.halt:
+            messages.success(request, 'Telescopes halted!')
 
     if request.GET.get('submit_clear_halt'):
         clear_halt()
+        if not OVST.halt:
+            messages.success(request, 'Telescopes halt cleared!')
+
     if request.GET.get('modbus_connection'):
         mod = getvalue(request, 'modbus_connection', str)
         if mod == 'open':

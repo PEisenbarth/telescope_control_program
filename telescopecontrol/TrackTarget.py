@@ -51,20 +51,20 @@ class TrackTarget:
                 self.startTimeStamp = Timestamp()
 
             if not checkAbsoluteSequenceHitsLimitSwitch(self.OVST, self.startTimeStamp, observationDuration*60,
-                                                        targetname, mode)[0]:
+                                                        targetname, GoOffAzEl, mode)[0]:
                 self.track_Queue.put([targetname, observationDuration, GoOffAzEl, self.startTimeStamp, moveIncrementalTime,
                                       mode])
-                print 'target put into queue'
                 if not self.running:
                     self.th = threading.Thread(target=self._tracking_thread)
                     self.th.start()
-                    print 'Starting Track of %s at %s' % (targetname, self.startTimeStamp.to_string())
                     self.running = True
+                    return ('success', 'Starting Track of %s at %s' % (targetname, self.startTimeStamp.to_string()))
                 else:
-                    print 'Currently a target is tracked. New track was put into the Queue on position %i' \
-                          % (self.track_Queue.qsize()-1)
+                    return ('success', 'Currently a target is tracked. New track was put into the Queue on position %i\n' \
+                           '(Target: %s, Duration: %i)' \
+                          % (self.track_Queue.qsize()-1, targetname, observationDuration))
             else:
-                print "Can't track target without hitting a limit switch"
+                return ('error', "Can't track target without hitting a limit switch!")
 
     def _tracking_thread(self):
         '''     this takes one item(target) of :Queue: track_Queue and tracks it. This gets repeated until the Queue is
@@ -74,6 +74,7 @@ class TrackTarget:
             # get all args of next item of track_Queue
             args = self.track_Queue.get()
             # start position data acquisition
+            print args
             self._start_track(*args)
             if self.halt and not self.stop_all:
                 # stop_track() got called
@@ -118,7 +119,7 @@ class TrackTarget:
         if isinstance(targetname, Target):
             self.targetname = targetname
         self.moveIncrementalTime = moveIncrementalTime
-        self.sleepingTimeSec = 1
+        self.sleepingTimeSec = 0.5
         self.targetname = targetname
 
         self.observationDuration = observationDuration*60
@@ -139,14 +140,13 @@ class TrackTarget:
 
         if not self.halt:
             # Check if the target is only visible after the move incremental time.
-            if (checkAbsoluteSequenceHitsLimitSwitch(self.OVST, self.startTimeStamp, self.observationDuration, self.targetname,
-                                                     self.mode))[0]:
+            if (checkAbsoluteSequenceHitsLimitSwitch(self.OVST, self.startTimeStamp, self.observationDuration,
+                                                     self.targetname, goOffAzEl, self.mode))[0]:
                 # Set the starttimestamp after the moveIncrementalTime to avoid hitting a limitswitch
                 self.startTimeStamp += self.moveIncrementalTime
             if (checkAbsoluteSequenceHitsLimitSwitch(self.OVST, self.startTimeStamp, self.observationDuration,
-                                                                      self.targetname, self.mode)[0]):
+                                                                      self.targetname, goOffAzEl, self.mode)[0]):
                 print "There is no moving possible without hitting a end switch at %s."% Timestamp().to_string()
-                print "'startTime: %r ,real Time: %r"% (self.startTimeStamp,Timestamp()) #Debug issues
                 print "Thread %s finished unsuccessful at %s."%(self.targetname, Timestamp().to_string())
             else:
                 # The way it moves causes that it always wants to move as fast as possible.
@@ -203,7 +203,7 @@ class TrackTarget:
 
 
 
-def checkAbsoluteSequenceHitsLimitSwitch(OVST, startTimeStamp, observationDuration, targetname, gOP=None):
+def checkAbsoluteSequenceHitsLimitSwitch(OVST, startTimeStamp, observationDuration, targetname, GoOffAzEl=None, gOP=None):
     """ Checks if the observation hits a limit switch. If motion is possible, it returns the rollover specification.
     
 
@@ -248,6 +248,8 @@ def checkAbsoluteSequenceHitsLimitSwitch(OVST, startTimeStamp, observationDurati
     hitsLimitSwitch = False
     if gOP == None:
         gOP = ObservationMode()
+    if GoOffAzEl:
+        gOP.goOffMax = GoOffAzEl
     gOP.startTimeStamp = startTimeStamp
     # List with azEl for all antennas for each Timestamp
     azElTmSp = [] # [Timestamp][Antenna][Azimuth=0,Elevation=1]

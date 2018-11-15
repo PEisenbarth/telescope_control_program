@@ -1,30 +1,17 @@
 {% extends 'home/layout.html' %}
 {% block scripts %}
 {% load static %}
-<script>
-// This function rejects form submission with enter
-    function stopRKey(evt) {
-        var evt = (evt) ? evt : ((event) ? event : null);
-        var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-        if (evt.keyCode == 13)  {return false;}
-    }
+  <script>
+  // This function rejects form submission with enter
+      function stopRKey(evt) {
+          var evt = (evt) ? evt : ((event) ? event : null);
+          var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+          if (evt.keyCode == 13)  {return false;}
+      }
 
-    document.onkeypress = stopRKey;
-</script>
-<style>
-.x_link .x_hover {
-  display: none;
-}
-.x_link:hover .x_default,
-.x_link:active .x_default{
-  display: none;
-}
-.x_link:hover .x_hover,
-.x_link:active .x_hover{
-  display: inline;
-  text-align:right;
-}
-</style>
+      document.onkeypress = stopRKey;
+  </script>
+  <script src="{% static 'home/js/sorttable.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -234,8 +221,7 @@
 </div>
 <div class="row">
   <div class="col">
-    <div class="table-vertical-scroll">
-      <table class="table table-hover table-active table-in-range">
+      <table class="table table-hover table-active scroll sortable">
         <thead>
           <tr>
             <th>Target</th>
@@ -253,7 +239,6 @@
         {% endfor %}
         </tbody>
       </table>
-    </div>
   </div>
 </div>
 <div class="row">
@@ -299,7 +284,7 @@
             <td>{{ track.0 }}</td>
             <td>{{ track.1 }}</td>
             <td>{{ track.3 }}</td>
-            <td>{{ track.6 }}</td>
+            <td>{{ track.5 }}</td>
             <td style="text-align:right">
               <a href="/track?del_track={{forloop.counter0}}#" class="x_link">
                 <img src="{% static 'home/svg/x.svg' %}" class="x_default" width="12%" alt="">
@@ -310,10 +295,13 @@
           {% endfor %}
         </tbody>
       </table>
-    </div>
+</div>
+    {% if current_track %}
     <form action="#">
       <input type="submit" class="btn btn-outline-danger" style="float:right; margin:5px 10px 0 0" name="stop_all_tracks" value="Stop all tracks">
     </form>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
+

@@ -67,7 +67,7 @@ def track(target, duration=2, GoOff=None, startTime=None, mode=None):
     :param duration:    float 
                         duration of the observation in minutes    
     """
-    trackq.track(targetname=target, observationDuration=duration, GoOffAzEl=GoOff, startTime=startTime, mode=mode)
+    return trackq.track(targetname=target, observationDuration=duration, GoOffAzEl=GoOff, startTime=startTime, mode=mode)
 
 def stop_track():
     trackq.halt = True
@@ -114,11 +114,17 @@ def current_track():
 def pending_tracks():
     if trackq.track_Queue.empty():
         return None
+    # Change the observationMode object to the observation mode name
     pending = list(trackq.track_Queue.queue)
-    for i, pen in enumerate(pending):
-        if pen[5]:
-            pending[i].append(pen[5].mode)    # Add the name of the mode
-    return pending
+    pending_list = [pen[:5] for pen in pending]     # Only way i found to get the name of the Observation mode without
+    for i, pen in enumerate(pending):               # call by Reference (without changing the attributes of track_Queue)
+        if pen[5]:                                  # There is maybe a better way
+            pending_list[i].append(pen[5].mode)
+        elif pen[2]:
+            pending_list[i].append('Cross')
+        else:
+            pending_list[i].append(None)
+    return pending_list
 
 def delete_track(num=None):
     if not isinstance(num, int):
