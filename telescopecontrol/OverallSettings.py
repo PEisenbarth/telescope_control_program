@@ -1,5 +1,6 @@
 from Python_Diagnostic_Program_Modified import PythonDiagnosticProgramm
-from katpoint import Timestamp, Catalogue, construct_azel_target, construct_radec_target, deg2rad
+from katpoint import Timestamp, Catalogue, construct_azel_target, construct_radec_target, deg2rad, Target
+from katpoint.target import construct_target_params
 from PLCCommunication import PLCCommunicationQueue, PLCCommunicationThread
 from SensorClassModifications import _sensorClassModification
 from Window import WindowThread
@@ -12,7 +13,6 @@ import h5py
 from datetime import datetime
 import numpy as np
 import threading
-# from KatCPServer import ServerThread
 
 
 class OverallSettings(object):
@@ -447,8 +447,7 @@ class OverallSettings(object):
         try:
             azel = check_target(self, target)
         except LookupError:
-            print('Target with position az: %s, el: %s is out of telescope range')%(az, el)
-            return
+            return 'Target with position az: %s, el: %s is out of telescope range' % (az, el)
         self.enableTelescopes()
         self.inSafetyPosition = False
         moveIncrementalAdapter(self, target, antennas=antennas, azElOff=azel_off)
@@ -481,6 +480,18 @@ class OverallSettings(object):
                 for i, azel in enumerate(pos):
                     print '%s     \t Azimuth: %s \t Elevation: %s' % (self.antennaList[i].name, azel[1], azel[2])
                 self.disableTelescopes()
+
+    def move_to_gal_pos(self, lat, long, name='galactic target'):
+        """
+        Moves telescopes to position of galactic coordinates
+        :param lat: galactic latitude
+        :param long: galactic longitude
+        :param name: optional target name
+        """
+        body = construct_target_params('%s, gal, %s, %s' % (name, lat, long))
+        target = Target(*body)
+        message = self.move_to_pos(target)
+        return message
 
     def get_pos(self):
         """

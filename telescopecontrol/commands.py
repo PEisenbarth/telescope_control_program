@@ -49,6 +49,10 @@ def move(az,el=None):
     OVST.move_to_pos(az, el)
 
 @threaded
+def move_galactic(lat, long):
+    OVST.move_to_gal_pos(lat, long)
+
+@threaded
 def home():
     OVST.moveHomePosition()
 

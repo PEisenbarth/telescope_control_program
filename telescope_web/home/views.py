@@ -7,15 +7,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
-from telescopecontrol.check_target import *
-from telescopecontrol.commands import *
-# from .check_target import *
-# from .commands import *
+# from telescopecontrol.check_target import *
+# from telescopecontrol.commands import *
+from .check_target import *
+from .commands import *
 from update_Status import update
-from roachboard_readout import RoachReadout
+# from roachboard_readout import RoachReadout
 
-update(OVST)
-roach = RoachReadout()
+# update(OVST)
+#roach = RoachReadout()
 
 
 def getvalue(request, name, val_type):
@@ -233,15 +233,20 @@ def pointing(request):
             print 'Please insert an integer'
         return redirect('/pointing')
 
+    if request.GET.get('movegal'):
+        gal_lat = getvalue(request, 'gal_lat', float)
+        gal_long = getvalue(request, 'gal_long', float)
+        message = move_galactic(gal_lat, gal_long)
+        return redirect('/pointing')
 
-    if (request.GET.get('home')):
+    if request.GET.get('home'):
         home()
         print 'moving home'
         return redirect('/pointing')
-    if (request.GET.get('safety')):
+    if request.GET.get('safety'):
         safety()
         return redirect('/pointing')
-    if (request.GET.get('quit')):
+    if request.GET.get('quit'):
         quit_tel()
         return redirect('/pointing')
     return render(request, 'home/pointing.html', context)

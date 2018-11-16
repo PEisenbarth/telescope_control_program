@@ -11,20 +11,22 @@
 {% block content %}
     <ul class="nav nav-tabs" id="pointingtabs" role="tablist">
       <li class="nav-item">
-        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#move" role="tab" aria-controls="home" aria-selected="true">Move</a>
+        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#move" role="tab" aria-controls="move" aria-selected="true">Move</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="azel-tab" data-toggle="tab" href="#azel" role="tab" aria-controls="profile" aria-selected="false">AzEl</a>
+        <a href="#target" class="nav-link" id="azel-tab" data-toggle="tab" role="tab" aria-controls="azel" aria-selected="false">AzEl</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="radec-tab" data-toggle="tab" href="#radec" role="tab" aria-controls="contact" aria-selected="false">RaDec</a>
+        <a href="#azel" class="nav-link" id="radec-tab" data-toggle="tab" role="tab" aria-controls="radec" aria-selected="false">RaDec</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="target-tab" data-toggle="tab" href="#target" role="tab" aria-controls="contact" aria-selected="false">Target</a>
+        <a href="#radec" class="nav-link" id="target-tab" data-toggle="tab" role="tab" aria-controls="target" aria-selected="false">Target</a>
       </li>
-
-
+      <li class="nav-item">
+        <a href="#galactic" class="nav-link" id="galactic-tab" data-toggle="tab" role="tab" aria-controls="galactic" aria-selected="false">Galactic</a>
+      </li>
     </ul>
+
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="move" role="tabpanel" aria-labelledby="home-tab">
         <h4>Special positions</h4>
@@ -52,6 +54,7 @@
             </form>
         </div>
       </div>
+
       <div class="tab-pane fade" id="radec" role="tabpanel" aria-labelledby="contact-tab">
         <h4>Move telescope to Right Ascension and Declination</h4>
         <div class="col-7">
@@ -66,6 +69,7 @@
             </form>
         </div>
       </div>
+
       <div class="tab-pane fade" id="target" role="tabpanel" aria-labelledby="contact-tab">
         <h4>Move telescopes to target position</h4>
         <div class="col-7">
@@ -79,6 +83,23 @@
           </form>
         </div>
       </div>
+
+      <div class="tab-pane fade" id="galactic" role="tabpanel" aria-labelledby="galactic-tab">
+        <h4>Move telescopes to galactic coordinates</h4>
+        <div class="col">
+            <form action="#">
+                <div class="input-group">
+                    <input type="number" step="0.01" required aria-label="lat" name="gal_lat" size="2" placeholder="Logitude" class="form-control">
+                    <input type="text" required aria-label="long" name="gal_long" size="2" placeholder="Latitude" class="form-control">
+                    <div class="input-group-append">
+                    <input class="btn btn-outline-secondary" type="submit" name="movegal" value="Move Galactic Coordinates">
+                    </div>
+                </div>
+            </form>
+        </div>
+      </div>
+
+
 
     </div>
 
