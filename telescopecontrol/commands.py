@@ -6,6 +6,7 @@ from TrackTarget import TrackTarget
 from ObservationMode import obs_mode
 import time
 from functools import wraps
+from katpoint import construct_azel_target, deg2rad
 
 # Decorator function that threads the decorated function
 def threaded(func):
@@ -72,6 +73,11 @@ def track(target, duration=2, GoOff=None, startTime=None, mode=None):
                         duration of the observation in minutes    
     """
     return trackq.track(targetname=target, observationDuration=duration, GoOffAzEl=GoOff, startTime=startTime, mode=mode)
+
+def track_line(linepoints, duration):
+    target = construct_azel_target(deg2rad(linepoints[0][0]), deg2rad(linepoints[0][1]))
+    mode = obs_mode('Line', linePoints=linepoints, observationDuration=duration)
+    return trackq.track(target, duration, mode=mode)
 
 def stop_track():
     trackq.halt = True

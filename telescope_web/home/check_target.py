@@ -1,11 +1,59 @@
-from katpoint import Catalogue, Antenna, Timestamp, rad2deg, Target
+from katpoint import Catalogue, Antenna, Timestamp, rad2deg, Target, construct_azel_target, deg2rad
 import os
 import time
+from Queue import Queue
+import threading
+from datetime import datetime
 # Limits             Az             El
 #               150     -187    95      25
 #                       =173
 
 
+class Vars(Queue):
+    def __init__(self):
+        Queue.__init__(self)
+        self.put(['Kochab', 40, None, '14:30:00', 20, 'Pong'])
+        self.put(['Sun', 10, None, '16:10:00', 20, 'Raster'])
+        self.put(['Capella', 20, None, '11:10:00', 20, 'Lissajous'])
+        self.put(['Kochab', 40, None, '14:32:00', 20, 'Pong'])
+        self.put(['Sun', 10, None, '16:12:00', 20, 'Raster'])
+        self.put(['Capella', 20, None, '11:12:00', 20, 'Lissajous'])
+        self.put(['Kochab', 40, None, '14:35:00', 20, 'Pong'])
+        self.put(['Sun', 10, None, '16:15:00', 20, 'Raster'])
+        self.put(['Capella', 20, None, '11:15:00', 20, 'Lissajous'])
+        RTT = Antenna("Roof Top Telescope (Shed Side)", '51:45:34.5', '-1:15:34.8', 85)
+        RTT2 = Antenna("Roof Top Telescope 2 (Stairs Side)", '51:45:34.6', '-1:15:34.9', 85)
+        self.antennaList = [RTT, RTT2]
+        self.active_antennas = [RTT, RTT2]
+        self.halt = False
+        self.catalogue = Catalogue(add_specials=True, add_stars=True)
+        print 'Initialising Catalogues...'
+
+        filedir = '/home/telescopecontrol/PhilippE/telescope_control/telescopecontrol'
+        #
+        # # Hipparcos Catalogue
+        # filename = os.path.join(filedir, 'Catalogues/hipparcos.edb')
+        # self.catalogue.add_edb(file(filename))
+        #
+        # CBASS Catalogue
+        filename = os.path.join(filedir, 'Catalogues/CBASS_Catalogue.csv')
+        self.catalogue.add(file(filename))
+        #
+        # # Messier Catalogue
+        filename = os.path.join(filedir, 'Catalogues/MESSIER.edb')
+        self.catalogue.add_edb(file(filename))
+        self.update_time = None
+        self.in_range = None
+
+        # Checks which targets are in range of the telescopes. Depending on the size of the Catalogue, this can take
+        # very long. That's why it is threaded. If the first loop was completed, the list will be shown on the website
+
+        print 'Initialization Done!'
+
+
+
+
+OVST = Vars()
 
 
 def check_target(OVST, tar,tmstmp=None, check=True):
@@ -66,6 +114,12 @@ def filter_catalogue(OVST):
             target.append(round(azel[0][0], 4))
             target.append(round(azel[0][1], 4))
             inRange.append(target)
+            threading.Thread(target=self.check_in_range).start()
+
         except:
             pass
     return inRange
+
+if __name__ == '__main__':
+    target = construct_azel_target(deg2rad(30), deg2rad(50))
+    print check_target(OVST, target)

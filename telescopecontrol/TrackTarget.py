@@ -176,7 +176,10 @@ class TrackTarget:
                         print "Start observing Target '%s' at %s for %r minutes. " \
                               % (self.targetname, Timestamp().to_string(), self.observationDuration/60)
                         # Start position daq
-                        qth = threading.Thread(target=self.OVST.daq_pos, args=(self.targetname,))
+                        if isinstance(self.targetname, str):
+                            qth = threading.Thread(target=self.OVST.daq_pos, args=(self.targetname,))
+                        else:
+                            qth = threading.Thread(target=self.OVST.daq_pos)
                         qth.start()
                         print 'Data Acquisition got started'
                         # Calculate the :var: 'endTimeStamp' at this line to avoid loosing time with moving to the target

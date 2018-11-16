@@ -6,6 +6,7 @@ from SensorClassModifications import _sensorClassModification
 from Window import WindowThread
 import time
 import os
+from AzimuthElevationTransformations import dms2dd
 from wetton_settings import init_wetton_telescope
 from movingAdapter import moveIncrementalAdapter
 from check_target import check_target, filter_catalogue
@@ -440,6 +441,8 @@ class OverallSettings(object):
             target.name = 'Moving to ra: %s, dec: %s at %s' % (az, el, Timestamp().to_string())
         elif isinstance(az, str) and not el:
             target = self.Catalogue[az]
+        elif isinstance(az, Target):
+            target = az
         else:
             raise AttributeError('Wrong format')
 
@@ -488,6 +491,13 @@ class OverallSettings(object):
         :param long: galactic longitude
         :param name: optional target name
         """
+        try:
+            if isinstance(lat, str):
+                lat = dms2dd(lat)
+            if isinstance(long,str):
+                long = dms2dd(long)
+        except ValueError:
+            return 'error', "Can't evaluate inputs please insert a float or a string with format 'DEG:mm:ss'"
         body = construct_target_params('%s, gal, %s, %s' % (name, lat, long))
         target = Target(*body)
         message = self.move_to_pos(target)

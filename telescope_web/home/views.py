@@ -7,16 +7,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
-# from telescopecontrol.check_target import *
-# from telescopecontrol.commands import *
-from .check_target import *
-from .commands import *
+from telescopecontrol.check_target import *
+from telescopecontrol.commands import *
+# from .check_target import *
+# from .commands import *
 from update_Status import update
-# from roachboard_readout import RoachReadout
+from roachboard_readout import RoachReadout
 
-# update(OVST)
-#roach = RoachReadout()
-
+update(OVST)
+roach = RoachReadout()
 
 def getvalue(request, name, val_type):
     """ 
@@ -26,6 +25,15 @@ def getvalue(request, name, val_type):
         return val_type(request.GET.get(name))
     except:
         return None
+
+def return_message(request, tag, message):
+    if tag == 'success':
+        messages.success(request, message)
+    elif tag == 'error':
+        messages.error(request, message)
+    else:
+        messages.info(request, message)
+
 
 def check_roach(request):
     '''Checks if settings on the Roachboard Readout were done'''
@@ -152,20 +160,10 @@ def tracks(request): # TODO
     if request.GET.get('target'):
         if mode:
             tag, message = track(target, duration, GoOff=GoOff, startTime=startTime, mode=mode)
-            if tag == 'success':
-                messages.success(request, message)
-            elif tag == 'error':
-                messages.error(request, message)
-            else:
-                messages.info(request, message)
+            return_message(request, tag, message)
         else:
             tag, message = track(target, duration, GoOff=GoOff, startTime=startTime)
-            if tag == 'success':
-                messages.success(request, message)
-            elif tag == 'error':
-                messages.error(request, message)
-            else:
-                messages.info(request, message)
+            return_message(request, tag, message)
         return redirect('/track')
 
     if request.GET.get('stop_all_tracks'):
@@ -235,7 +233,11 @@ def pointing(request):
 
     if request.GET.get('movegal'):
         gal_lat = getvalue(request, 'gal_lat', float)
+        if not gal_lat:
+            gal_lat = getvalue(request, 'gal_lat', str)
         gal_long = getvalue(request, 'gal_long', float)
+        if not gal_long:
+            gal_long = getvalue(request, 'gal_long', str)
         message = move_galactic(gal_lat, gal_long)
         return redirect('/pointing')
 
