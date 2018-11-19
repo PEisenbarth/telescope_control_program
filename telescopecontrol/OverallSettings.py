@@ -484,22 +484,14 @@ class OverallSettings(object):
                     print '%s     \t Azimuth: %s \t Elevation: %s' % (self.antennaList[i].name, azel[1], azel[2])
                 self.disableTelescopes()
 
-    def move_to_gal_pos(self, lat, long, name='galactic target'):
+    def move_to_gal_pos(self, long, lat, name='galactic target'):
         """
         Moves telescopes to position of galactic coordinates
-        :param lat: galactic latitude
         :param long: galactic longitude
+        :param lat: galactic latitude
         :param name: optional target name
         """
-        try:
-            if isinstance(lat, str):
-                lat = dms2dd(lat)
-            if isinstance(long,str):
-                long = dms2dd(long)
-        except ValueError:
-            return 'error', "Can't evaluate inputs please insert a float or a string with format 'DEG:mm:ss'"
-        body = construct_target_params('%s, gal, %s, %s' % (name, lat, long))
-        target = Target(*body)
+        target = Target(('%s, gal, %s, %s' % (name, long, lat)))
         message = self.move_to_pos(target)
         return message
 

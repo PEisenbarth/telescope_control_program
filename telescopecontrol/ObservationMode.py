@@ -172,7 +172,6 @@ class ObservationMode(object):
         self.velocity = kwargs.get('velocity', 1)  # Velocity by pong mode
 
         self.linepoints = kwargs.get('linePoints', None)  # Points for a line track
-        print self.linepoints
         self.azElRasterList = []
         self.createRasterDiscreteList()  # fills 'azElRasterList'
         self.createRaster()  # Calculates several values
@@ -459,7 +458,6 @@ class ObservationMode(object):
             previous_az, previous_el = az, el
             self.relative_distances.append(d_azel / self.total_deg)
         self.velocity = self.total_deg / self.observationDuration
-        print 'velocity:', self.velocity
 
     def trackLine(self):
         if isinstance(self.timeStampToCheck, Timestamp):
@@ -483,7 +481,14 @@ class ObservationMode(object):
 
 
 if __name__ == '__main__' or __name__ == '__builtin__':
-    mode = obs_mode('Line', linePoints=[0], observationDuration=5)
+    t = np.linspace(0, 2*np.pi,400)
+    x = -np.exp(np.cos(t))
+    y = np.exp(np.sin(t))
+    val_list = []
+    for i, val in enumerate(x):
+        val_list.append((val, y[i]))
+    print val_list
+    mode = obs_mode('Line', linePoints=val_list, observationDuration=5)
 
     az_list = []
     el_list = []
@@ -492,6 +497,4 @@ if __name__ == '__main__' or __name__ == '__builtin__':
         az_list.append(mode.currentOff[0])
         el_list.append(mode.currentOff[1])
     plt.plot(az_list, el_list)
-    plt.xlim(-10,10)
-    plt.ylim(-10,10)
     plt.show()

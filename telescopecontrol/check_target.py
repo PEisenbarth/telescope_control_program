@@ -25,6 +25,9 @@ def check_target(OVST, target, tmstmp=None, check=True):
         target = catalogue[target]
     if isinstance(target, Target):
         target = target
+    if isinstance(target, tuple) and len(target) == 3:
+        target = Target(target)
+
 
     if not tmstmp:
         tmstmp = Timestamp()

@@ -66,14 +66,6 @@ class PLCCommunicationThread(threading.Thread):
             It uses
             PDPList[0]: object of :class: 'PythonDiagnosticProgramm'
                 Necessary to use a modbus connection to read #UPDATE
-
-            sensorUpdaterList: object of :class: 'Sensor'
-                The sensor which value is updated. 
-                Its argument 'refRegister' define the number 
-                of the register which will be read.
-
-            PCQ: object of :class: 'PLCCommunicationQueue'
-            The thread works through the elements of this PCQ Queue.
         '''
         threading.Thread.__init__(self)
         self.OVST = OVST
@@ -82,10 +74,9 @@ class PLCCommunicationThread(threading.Thread):
         self.start()
         
     def run(self):
-        '''Infinite loop which updates a object of :class: 'Sensor' or sends commands to the PLC.
+        """Infinite loop which updates a object of :class: 'Sensor' or sends commands to the PLC.
         It is called with 'BackgroundUpdaterObject.start()' in the command line.
-        
-        '''
+        """
         
 
         while True:
@@ -93,7 +84,7 @@ class PLCCommunicationThread(threading.Thread):
             if self.OVST.PCQ.qsize() < 5:
                 self.OVST.PCQ.readTask()
             # get the command
-            priority,tmSp, args = self.OVST.PCQ.get()
+            priority, tmSp, args = self.OVST.PCQ.get()
             # if it is a reading task, the priority is 5
             if priority == 2:
                 successful=False

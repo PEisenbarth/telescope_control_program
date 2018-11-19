@@ -8,6 +8,8 @@ from katpoint import Antenna, Catalogue, rad2deg
 from datetime import datetime
 import time
 from .check_target import filter_catalogue
+from optparse import OptionParser
+import sys
 
 class Vars(Queue):
     def __init__(self):
@@ -60,6 +62,32 @@ class Vars(Queue):
 
 
 
+class Roach():
+    def __init__(self):
+        self.katcp_port=7147
+        self.boffiles = ['tut3.bof',                        #original design with an accu length 2^10
+                         'cw_vers_2_2017_Apr_25_1221.bof',  #test()CW readout design with an accu length of 2^9
+                         'tut3_hr_v4_2017_May_05_2026.bof'  #CW readout design with an accu length of 2^9
+                         ]
+        self.bitstream = self.boffiles[2]
+        self.acc_len = 2 * (2 ** 28) / 1024
+        self.gain = 0x0fffffff
+        self.save = False
+        self.p = OptionParser()
+        self.p.set_usage('spectrometer.py <ROACH_HOSTNAME_or_IP> [options]')
+        self.p.set_description(__doc__)
+        self.p.add_option('-s', '--skip', dest='skip', action='store_true',
+                     help='Skip reprogramming the FPGA and configuring EQ.')
+        self.opts, self.args = self.p.parse_args(sys.argv[1:])
+
+        self.roach = 'grasshopper'  # default value for wetton telescope
+        self.fpga = None
+        self.old_acc_n = None
+        self.running = False # As long as readout is true, the data gets plotted
+        self.plot_lims = [13750, 13800]
+
+
+roach = Roach()
 OVST = Vars()
 
 # Decorator function that threads the decorated function
@@ -107,6 +135,11 @@ def clear_fault():
 @threaded
 def move(az,el=None):
     pass
+
+@threaded
+def move_galactic(lat, long):
+    pass
+
 @threaded
 def home():
     pass

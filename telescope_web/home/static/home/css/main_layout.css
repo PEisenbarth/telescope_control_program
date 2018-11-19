@@ -69,6 +69,16 @@ h6{
     padding: 1% 0 0 1%;
 }
 
+.select_target{
+    background-color:#e9ecef !important;
+}
+
+.select_target:hover{
+    background-color:#6c757d !important;
+    border:#6c757d;
+    color:white;
+}
+
 .special_pos{
     display: inline-block;
 }

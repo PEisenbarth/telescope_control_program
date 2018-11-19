@@ -7,15 +7,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
-from telescopecontrol.check_target import *
-from telescopecontrol.commands import *
-# from .check_target import *
-# from .commands import *
+# from telescopecontrol.check_target import *
+# from telescopecontrol.commands import *
+from .check_target import *
+from .commands import *
 from update_Status import update
-from roachboard_readout import RoachReadout
+# from roachboard_readout import RoachReadout
 
 update(OVST)
-roach = RoachReadout()
+# roach = RoachReadout()
 
 def getvalue(request, name, val_type):
     """ 
@@ -87,7 +87,7 @@ def index(request):
 
 
 @login_required()
-def tracks(request): # TODO
+def tracks(request):  # TODO
     '''
     This is the view function for /track. It checks if a form for a tracking mode was submitted and calls the corresponding 
     funciton. After that, the user gets redirected to /track
@@ -109,7 +109,26 @@ def tracks(request): # TODO
         }
     context['pending_tracks'] = pending_tracks()        # FIXME: Change ObservationMode object to ObsevationMode name
     try:
-        target = str(request.GET.get('target'))
+        select = getvalue(request, 'select_target', str)
+        if select:
+            if select == 'target':
+                target = getvalue(request, 'target', str)
+            if select == 'radec':
+                ra = getvalue(request, 'ra', str)
+                dec = getvalue(request, 'dec', int)
+                target = ('radec %s, %f' % (ra, deg2rad(dec)))
+            if select == 'azel':
+                az = getvalue(request, 'az', int)
+                el = getvalue(request, 'el', int)
+                target = ('azel, %f, %f' % (az, el))
+            if select == 'gal':
+                gal_long = getvalue(request, 'gal_long', float)
+                gal_lat = getvalue(request, 'gal_lat', float)
+                if gal_long == None:
+                    gal_long = getvalue(request, 'gal_long', str)
+                if gal_lat == None:
+                    gal_lat = getvalue(request, 'gal_lat', str)
+                target = ('gal, %s, %s' % (gal_long, gal_lat))
         duration = int(request.GET.get('duration'))
         startTime = str(request.GET.get('start_time'))
         if startTime == "":
@@ -232,13 +251,9 @@ def pointing(request):
         return redirect('/pointing')
 
     if request.GET.get('movegal'):
-        gal_lat = getvalue(request, 'gal_lat', float)
-        if not gal_lat:
-            gal_lat = getvalue(request, 'gal_lat', str)
-        gal_long = getvalue(request, 'gal_long', float)
-        if not gal_long:
-            gal_long = getvalue(request, 'gal_long', str)
-        message = move_galactic(gal_lat, gal_long)
+        gal_long = getvalue(request, 'gal_long', str)
+        gal_lat = getvalue(request, 'gal_lat', str)
+        message = move_galactic(gal_long, gal_lat)
         return redirect('/pointing')
 
     if request.GET.get('home'):

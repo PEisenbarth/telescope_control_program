@@ -50,8 +50,8 @@ def move(az,el=None):
     OVST.move_to_pos(az, el)
 
 @threaded
-def move_galactic(lat, long):
-    OVST.move_to_gal_pos(lat, long)
+def move_galactic(long, lat):
+    OVST.move_to_gal_pos(long, lat)
 
 @threaded
 def home():
