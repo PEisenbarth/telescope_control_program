@@ -17,11 +17,11 @@ import struct
 import sys
 import math
 import matplotlib
-from datetime import datetime
-import time
-
 matplotlib.use('SVG')   # Change backend, otherwise it will throw an error when restarting the Readout
+
+from datetime import datetime
 from matplotlib import pyplot as plt
+import time
 from optparse import OptionParser
 import h5py
 

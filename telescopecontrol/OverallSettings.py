@@ -6,10 +6,9 @@ from SensorClassModifications import _sensorClassModification
 from Window import WindowThread
 import time
 import os
-from AzimuthElevationTransformations import dms2dd
 from wetton_settings import init_wetton_telescope
 from movingAdapter import moveIncrementalAdapter
-from check_target import check_target, filter_catalogue
+from check_target import check_target, filter_catalogue, dms2dd
 import h5py
 from datetime import datetime
 import numpy as np
@@ -440,7 +439,10 @@ class OverallSettings(object):
             target = construct_radec_target(az, el)
             target.name = 'Moving to ra: %s, dec: %s at %s' % (az, el, Timestamp().to_string())
         elif isinstance(az, str) and not el:
-            target = self.Catalogue[az]
+            if ',' in az:
+                target = Target(az)
+            else:
+                target = self.Catalogue[az]
         elif isinstance(az, Target):
             target = az
         else:

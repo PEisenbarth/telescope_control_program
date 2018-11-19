@@ -116,8 +116,6 @@ class TrackTarget:
         :param mode:                     :object: 'GoOffPointing'
         """
         self.antennas = self.OVST.active_antennas
-        if isinstance(targetname, Target):
-            self.targetname = targetname
         self.moveIncrementalTime = moveIncrementalTime
         self.sleepingTimeSec = 0.5
         self.targetname = targetname

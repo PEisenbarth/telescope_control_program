@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
@@ -7,15 +5,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
-# from telescopecontrol.check_target import *
-# from telescopecontrol.commands import *
-from .check_target import *
-from .commands import *
+from telescopecontrol.check_target import *
+from telescopecontrol.commands import *
+# from .check_target import *
+# from .commands import *
 from update_Status import update
-# from roachboard_readout import RoachReadout
+from roachboard_readout import RoachReadout
 
 update(OVST)
-# roach = RoachReadout()
+roach = RoachReadout()
 
 def getvalue(request, name, val_type):
     """ 
@@ -36,7 +34,8 @@ def return_message(request, tag, message):
 
 
 def check_roach(request):
-    '''Checks if settings on the Roachboard Readout were done'''
+    ''' Checks if settings on the Roachboard Readout were done, applies it and starts the readout. 
+    '''
     if request.GET.get('submit_start_readout'):
         roach.__init__()    # Reinitialise to make sure to have default values
         if not roach.running:
@@ -63,12 +62,12 @@ def check_roach(request):
                 roach.save = True
                 print 'Saving data'
             threading.Thread(target=roach.run).start()
+            time.sleep(2)   # Give some time to let the server connect to the roachboard
 
     if request.GET.get('submit_stop_readout'):
         roach.running = False
         while roach.save:   # Wait until Data is saved
             time.sleep(1)
-
     return {'roach': {'running':    roach.running,
                       'boffiles':   roach.boffiles,
                       'boffile':    roach.bitstream,
@@ -76,7 +75,8 @@ def check_roach(request):
                       'gain':       roach.gain,
                       'connected':  roach.fpga.is_connected() if roach.fpga else None,
                       'plot_min':   roach.plot_lims[0],
-                      'plot_max':   roach.plot_lims[1]
+                      'plot_max':   roach.plot_lims[1],
+                      'save_data':  roach.save
                       }
             }
 
@@ -96,10 +96,10 @@ def tracks(request):  # TODO
     '''
     context = check_roach(request)
     context ['nbar'] = 'track'
-    current = current_track()
     context['in_range'] = OVST.in_range
     context['update_time'] = OVST.update_time
-
+    do_track = False
+    current = current_track()
     if current:
         context['current_track'] = {
             'target':       current[0],
@@ -107,7 +107,7 @@ def tracks(request):  # TODO
             'startTime':    current[2],
             'mode':         current[3]
         }
-    context['pending_tracks'] = pending_tracks()        # FIXME: Change ObservationMode object to ObsevationMode name
+    context['pending_tracks'] = pending_tracks()
     try:
         select = getvalue(request, 'select_target', str)
         if select:
@@ -115,26 +115,29 @@ def tracks(request):  # TODO
                 target = getvalue(request, 'target', str)
             if select == 'radec':
                 ra = getvalue(request, 'ra', str)
-                dec = getvalue(request, 'dec', int)
-                target = ('radec %s, %f' % (ra, deg2rad(dec)))
+                dec = getvalue(request, 'dec', str)
+                target = ('radec, %s, %s' % (ra, dec))
             if select == 'azel':
-                az = getvalue(request, 'az', int)
-                el = getvalue(request, 'el', int)
-                target = ('azel, %f, %f' % (az, el))
+                az = getvalue(request, 'az', str)
+                el = getvalue(request, 'el', str)
+                target = ('azel, %s, %s' % (az, el))
             if select == 'gal':
                 gal_long = getvalue(request, 'gal_long', float)
                 gal_lat = getvalue(request, 'gal_lat', float)
                 if gal_long == None:
                     gal_long = getvalue(request, 'gal_long', str)
+                    gal_long = dms2dd(gal_long)
                 if gal_lat == None:
                     gal_lat = getvalue(request, 'gal_lat', str)
+                    gal_lat = dms2dd(gal_lat)
                 target = ('gal, %s, %s' % (gal_long, gal_lat))
         duration = int(request.GET.get('duration'))
         startTime = str(request.GET.get('start_time'))
         if startTime == "":
             startTime = None
-    except:
-        pass
+        do_track = True
+    except Exception, e:
+        print e
     GoOff = None
     mode = None
     if request.GET.get('submit_track'):
@@ -176,7 +179,7 @@ def tracks(request):  # TODO
             }
         mode = mapping('Raster', **raster_dict)
 
-    if request.GET.get('target'):
+    if do_track:
         if mode:
             tag, message = track(target, duration, GoOff=GoOff, startTime=startTime, mode=mode)
             return_message(request, tag, message)
@@ -315,7 +318,6 @@ def tel_settings(request):
     return render(request, 'home/tel_settings.html', context)
 
 
-
 @login_required()
 def change_password(request):
     """Allows users to change their password on their own"""
@@ -336,8 +338,11 @@ def change_password(request):
     })
 
 
+@login_required()
 def updated_content(request):
     return render(request, 'home/updated_content.html')
 
+
+@login_required()
 def roach_plot(request):
     return render(request, 'home/roach_plot.html')

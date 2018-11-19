@@ -102,7 +102,6 @@ class PLCCommunicationThread(threading.Thread):
                     except IndexError:
                         # it is disconnected manually
                         setConnectionStatus(self)
-                time.sleep(1) # avoid other commands for 1 seconds
             elif priority == 5:
                 try:
                     # Process the command

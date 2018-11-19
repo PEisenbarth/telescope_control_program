@@ -39,9 +39,9 @@
       </select>
     </div>
   </div>
-  <div class="input-group" id="target_position">
-    <input type="text" required aria-label="Targetname" name="target" size="2" placeholder="Targetname" class="form-control">  </div>
-  <div class="input-group">
+  <div class="input-group mb-2" id="target_position" onload="select()">
+</div>
+  <div class="input-group mb-1">
     <div class="input-group-prepend">
       <div class="input-group-text">Duration</div>
     </div>
@@ -318,6 +318,7 @@
 {% block bodyscripts %}
 <script>
   function select(){
+    // This function changes the input fields according to the chosen coordinate system
     var x = document.getElementById("select_target").value;
     var out = document.getElementById("target_position");
     if (x == "target"){
@@ -325,22 +326,20 @@
     }
     if (x == "radec"){
       out.innerHTML =`<input type="time" step="1" required aria-label="Ra" name="ra" size="2" placeholder="Right Ascension" class="form-control">
-                      <input type="text" required aria-label="Dec" name="dec" size="2" placeholder="Declination" class="form-control">`;
+                      <input type="text" required aria-label="Dec" name="dec" size="2" placeholder="Declination" class="form-control" data-toggle="tooltip" data-placement="top" data-html="true" title="Allowed inputs: <br> float (decimal degrees) <br> string(format: 'Deg:min:sec')" data-delay='{"show":"200"}'>`;
     }
     if (x == "azel"){
-      out.innerHTML =`<input type="number" step="0.01" required aria-label="Azimuth" name="az" size="2" placeholder="Azimuth" class="form-control">
-                      <input type="number" step="0.01" required aria-label="Elevation" name="el" size="2" placeholder="Elevation" class="form-control">`;
+      out.innerHTML =`<input type="text" step="0.01" required aria-label="Azimuth" name="az" size="2" placeholder="Azimuth" class="form-control" data-toggle="tooltip" data-placement="top" data-html="true" title="Allowed inputs: <br> float (decimal degrees) <br> string(format: 'Deg:min:sec')" data-delay='{"show":"200"}'>
+                      <input type="text" step="0.01" required aria-label="Elevation" name="el" size="2" placeholder="Elevation" class="form-control" data-toggle="tooltip" data-placement="top" data-html="true" title="Allowed inputs: <br> float (decimal degrees) <br> string(format: 'Deg:min:sec')" data-delay='{"show":"200"}'>`;
     }
     if (x == 'gal'){
-      out.innerHTML =`<input type="text" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Allowed inputs: <br> float <br> string(format: 'Deg:min:sec')" required aria-label="lat" name="gal_long" size="2" placeholder="Longitude" class="form-control">
-                    <input type="text" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Allowed inputs: <br> float <br> string(format: 'Deg:min:sec')" required aria-label="long" name="gal_lat" size="2" placeholder="Latitude" class="form-control">`;
-
+      out.innerHTML =`<input type="text" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Allowed inputs: <br> float (decimal degrees) <br> string(format: 'Deg:min:sec')" required aria-label="lat" name="gal_long" size="2" placeholder="Longitude" class="form-control" data-delay='{"show":"200"}'>
+                    <input type="text" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Allowed inputs: <br> float (decimal degrees) <br> string(format: 'Deg:min:sec')" required aria-label="long" name="gal_lat" size="2" placeholder="Latitude" class="form-control" data-delay='{"show":"200"}'>`;
     }
     $(function () {
     $('[data-toggle="tooltip"]').tooltip()})
-
-
   };
+  select();
 </script>
 {% endblock %}
 

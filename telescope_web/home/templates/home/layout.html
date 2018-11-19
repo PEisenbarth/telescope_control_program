@@ -24,7 +24,7 @@
     <div class="col logout">
       <div class="dropdown">
         <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {{ user.username }}
+          {{ user.username.title }}
         </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             {% if user.is_superuser %}

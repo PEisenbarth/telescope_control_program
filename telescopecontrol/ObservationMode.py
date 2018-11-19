@@ -1,6 +1,5 @@
 from katpoint import *
 import numpy as np
-from matplotlib import pyplot as plt
 
 def obs_mode(mode, az_width=0, el_height=0, *args, **kwargs):
     if mode not in ['None', 'RasterDiscrete', 'Raster', 'Lissajous', 'Pong', 'Line']:
@@ -480,10 +479,12 @@ class ObservationMode(object):
 
 
 
-if __name__ == '__main__' or __name__ == '__builtin__':
+if __name__ == '__main__':
+    """For debugging issues"""
+    from matplotlib import pyplot as plt
     t = np.linspace(0, 2*np.pi,400)
-    x = -np.exp(np.cos(t))
-    y = np.exp(np.sin(t))
+    x = 10*np.cos(t)
+    y = 10*np.sin(t)
     val_list = []
     for i, val in enumerate(x):
         val_list.append((val, y[i]))

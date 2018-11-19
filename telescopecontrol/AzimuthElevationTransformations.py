@@ -47,18 +47,3 @@ def azimuthOffset(azimuth, offset):
     '''
     return (azimuth + 360 + offset) % 360
 
-def dms2dd(degree):
-    """   
-    Converts a degree angle from degrees minutes seconds to degrees in decimal notation
-    :param      degree: str: 'DEG:MIN:SEC"
-    :return:    degree in decimal notation
-    """
-    deg_dec = 0
-    degree_list = degree.split(':')
-    for i, deg in enumerate(degree_list):
-        if float(degree_list[0])<0 and i: # Change sign of all values if first value is negativ
-            deg = float(deg)*-1
-        else:
-            deg = float(deg)
-        deg_dec += deg/(60**i)
-    return deg_dec
