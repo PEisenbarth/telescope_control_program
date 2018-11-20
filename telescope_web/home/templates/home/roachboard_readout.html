@@ -39,7 +39,7 @@
                 <option selected>{{ roach.boffile }}</option>
                 {% else %}
                 <option selected>Choose...</option>
-                {% for bof in roach.boffiles %}
+                {% for bof in roach.boffiles.spectrum %}
                 <option value="{{ forloop.counter0 }}">{{ bof }}</option>
                 {% endfor %}
                 {% endif %}

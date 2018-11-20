@@ -13,7 +13,7 @@ from update_Status import update
 from roachboard_readout import RoachReadout
 
 update(OVST)
-roach = RoachReadout()
+roach = RoachReadout('spectrum')
 
 def getvalue(request, name, val_type):
     """ 
@@ -37,7 +37,7 @@ def check_roach(request):
     ''' Checks if settings on the Roachboard Readout were done, applies it and starts the readout. 
     '''
     if request.GET.get('submit_start_readout'):
-        roach.__init__()    # Reinitialise to make sure to have default values
+        roach.__init__('spectrum')    # Reinitialise to make sure to have default values
         if not roach.running:
             bof = getvalue(request, 'select_bof', int)
             acc_len = getvalue(request, 'tbx_acc_len', eval)
@@ -136,8 +136,8 @@ def tracks(request):  # TODO
         if startTime == "":
             startTime = None
         do_track = True
-    except Exception, e:
-        print e
+    except:
+        pass
     GoOff = None
     mode = None
     if request.GET.get('submit_track'):
@@ -317,6 +317,8 @@ def tel_settings(request):
     context['halt'] = OVST.halt
     return render(request, 'home/tel_settings.html', context)
 
+def lines(request):
+    return render(request, 'home/lines.html')
 
 @login_required()
 def change_password(request):

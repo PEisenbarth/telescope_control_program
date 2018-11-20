@@ -27,13 +27,27 @@ import h5py
 
 
 class RoachReadout():
-    def __init__(self):
+    '''
+    This class contains all readout possibilities (until now: spectrum, power)
+    '''
+    def __init__(self, mode):
+        '''
+        :param mode: str, readout mode  
+        '''
         self.katcp_port=7147
-        self.boffiles = ['tut3.bof',                        #original design with an accu length 2^10
-                         'cw_vers_2_2017_Apr_25_1221.bof',  #test()CW readout design with an accu length of 2^9
-                         'tut3_hr_v4_2017_May_05_2026.bof'  #CW readout design with an accu length of 2^9
-                         ]
-        self.bitstream = self.boffiles[2]
+        self.boffiles = {'spectrum':['tut3_hr_v4_2017_May_05_2026.bof', #CW readout design with an accu length of 2^9
+                                     'cw_vers_2_2017_Apr_25_1221.bof',  #test()CW readout design with an acc_len of 2^9
+                                     'tut3.bof',                        # original design with an accu length 2^10
+                                    ],
+                         'power':   [
+                                     'roach_powermeter_12_bit.bof',
+                                    ]
+                         }
+        if mode in self.boffiles.keys():
+            self.mode = mode
+        else:
+            raise Exception('Unknown mode!')
+        self.bitstream = self.boffiles[mode][0]
         self.acc_len = 2 * (2 ** 28) / 1024
         self.gain = 0x0fffffff
         self.save = False
@@ -49,11 +63,12 @@ class RoachReadout():
         self.old_acc_n = None
         self.running = False # As long as readout is true, the data gets plotted
         self.plot_lims = [13750, 13800]
+        self.ADC_correction = 1.28
 
 
-    def get_data(self):
+
+    def get_spectrum(self):
         #get the data...
-        ADC_correction = 1.28
         acc_n = self.fpga.read_uint('acc_cnt')
 
         a_0=struct.unpack('>8192l',self.fpga.read('even',8192*4,0))
@@ -70,7 +85,7 @@ class RoachReadout():
         # normalize the ineger into rmsVolt
         for j in range(16384):  # normalize the integer into rmsVolt
             linfloat[j] = interleave_a[j] / numpy.float64(
-                32768 * self.acc_len * 50 * 512 * ADC_correction)  # divided by integration number and 50 Ohm
+                32768 * self.acc_len * 50 * 512 * self.ADC_correction)  # divided by integration number and 50 Ohm
             if linfloat[j] == 0:
                 linfloat[j] = 0.0000001
             dBmfloat[j] = 10 * math.log10(linfloat[j])
@@ -93,7 +108,7 @@ class RoachReadout():
         self.t = str(datetime.now().time())[:8]
         self.data = []
         while self.running:
-            acc_n, interleave_a, tmsp = self.get_data()
+            acc_n, interleave_a, tmsp = self.get_spectrum()
             if acc_n != self.old_acc_n: #Draw plot only when acc_n has changed
                 plt.clf()
                 plt.plot(interleave_a)
@@ -113,6 +128,76 @@ class RoachReadout():
                 #                 '/home/telescopecontrol/PhilippE/telescope_control/telescope_web/home/templates/home/roach_plot.html')
                 self.old_acc_n = acc_n
             time.sleep(1)
+
+    def get_power(self):
+        # get the data...
+        print("Get Data")
+        total_power = 0.0
+        run = False
+        while run == False:
+            if self.fpga.read_int('acc_cnt') == 0:
+                # print "Readout register one!! Loop %s of %s." %(i,samples)
+                d = self.fpga.read('one', 65536 * 4, 0)
+                dint = numpy.array(struct.unpack('>65536l', d))
+                for j in range(65536):
+                    self.dfloat[j] = dint[j] / numpy.float64(8192 * 4)
+                    self.dfloat[j] = numpy.sqrt(self.dfloat[j])
+                    self.dfloat[j] = self.dfloat[j] / numpy.float64(512 * self.ADC_correction)
+                    self.power[j] = ((self.dfloat[j]) * (self.dfloat[j])) * numpy.float64(20)  # mW output power
+
+                total_power = sum(self.power) / numpy.float64(len(self.power))
+                # write here to file
+                run = True
+            if total_power == 0:
+                total_power = 0.0000001
+            self.total_power_dbm = 10 * math.log10(total_power)
+
+            # if fpga.read_int('acc_cnt') == 1:
+            # print "Readout register one!! Loop %s of %s." %(i,samples)
+            #    d = fpga.read('two', 65536 * 4, 0)
+            #    dint = numpy.array(struct.unpack('>65536l', d))
+            #    for j in range(65536):
+            #        dfloat[j] = dint[j] / numpy.float64(8192 * 4)
+            #        dfloat[j] = numpy.sqrt(dfloat[j])
+            #        dfloat[j] = dfloat[j] / numpy.float64(512 * ADC_correction)
+            #        power[j] = ((dfloat[j]) * (dfloat[j])) * numpy.float64(20)
+
+            #    total_power = sum(power) / numpy.float64(len(power))
+            #    run = True
+            # if total_power == 0:
+            #    total_power = 0.0000001
+
+        if len(self.interleave_a) > 1000:
+            self.interleave_a.pop(0)
+
+        # interleave_a.append(10*numpy.log10(total_power))
+        self.interleave_a.append(self.total_power_dbm)
+
+        return self.fpga.read_int('acc_cnt'), self.interleave_a
+
+    def plot_power(self):
+        self.dfloat = numpy.zeros(shape=(65536), dtype=float)
+        self.power = numpy.zeros(shape=(65536), dtype=float)
+        self.interleave_a = list()
+        self.fig = plt.figure(figsize=((7,5)))
+        self.ax = self.fig.add_subplot(1,1,1)
+        self.running = True
+        self.date = datetime.today().date().strftime('%Y_%m_%d')
+        self.t = str(datetime.now().time())[:8]
+        self.data = []
+        while self.running:
+            acc_n, interleave_a = self.get_power()
+            self.fig.clear()
+            plt.plot(interleave_a, 'b')
+            # matplotlib.pylab.semilogy(interleave_a)
+            plt.title('Integration number %i.' % acc_n)
+            plt.ylabel('Power (dBm)')
+            plt.grid(True)
+            plt.xlabel('Channel')
+            plt.xlim()
+            plt.savefig(
+                '/home/telescopecontrol/PhilippE/telescope_control/telescope_web/home/templates/home/roach_plot.html',
+                format='svg')
 
     def run(self):
 
@@ -139,10 +224,10 @@ class RoachReadout():
                 print 'done'
             else:
                 print 'Skipped.'
-
-            print 'Configuring accumulation period...',
-            self.fpga.write_int('acc_len',self.acc_len)
-            print 'done'
+            if self.mode != 'power':
+                print 'Configuring accumulation period...',
+                self.fpga.write_int('acc_len',self.acc_len)
+                print 'done'
 
             print 'Resetting counters...',
             self.fpga.write_int('cnt_rst',1)
@@ -157,7 +242,10 @@ class RoachReadout():
                 print 'Skipped.'
 
             # start the process
-            self.plot_spectrum()
+            if self.mode == 'spectrum':
+                self.plot_spectrum()
+            if self.mode == 'power':
+                self.plot_power()
             if self.save:
                 print 'Saving...'
                 with h5py.File('/home/telescopecontrol/PhilippE/DAQ/readout_%s.h5' % self.date, 'a') as hdf:
@@ -185,10 +273,6 @@ class RoachReadout():
             self.fpga.stop()
         except: pass
 
-
-def start_roach():
-    roach = RoachReadout()
-    roach.run()
-
 if __name__ == '__main__':
-    start_roach()
+    roach = RoachReadout('power')
+    roach.run()

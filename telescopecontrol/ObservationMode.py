@@ -483,13 +483,13 @@ if __name__ == '__main__':
     """For debugging issues"""
     from matplotlib import pyplot as plt
     t = np.linspace(0, 2*np.pi,400)
-    x = 10*np.cos(t)
-    y = 10*np.sin(t)
+    x = np.cos(t)
+    y = np.sin(t)
     val_list = []
     for i, val in enumerate(x):
-        val_list.append((val, y[i]))
+        val_list.append([val, y[i]])
     print val_list
-    mode = obs_mode('Line', linePoints=val_list, observationDuration=5)
+    mode = obs_mode('Line',  linePoints=val_list, observationDuration=5)
 
     az_list = []
     el_list = []
@@ -498,4 +498,5 @@ if __name__ == '__main__':
         az_list.append(mode.currentOff[0])
         el_list.append(mode.currentOff[1])
     plt.plot(az_list, el_list)
+
     plt.show()

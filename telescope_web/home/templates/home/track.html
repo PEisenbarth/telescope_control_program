@@ -2,14 +2,6 @@
 {% block scripts %}
 {% load static %}
   <script>
-  // This function rejects form submission with enter
-      function stopRKey(evt) {
-          var evt = (evt) ? evt : ((event) ? event : null);
-          var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-          if (evt.keyCode == 13)  {return false;}
-      }
-
-      document.onkeypress = stopRKey;
   </script>
   <script src="{% static 'home/js/sorttable.js' %}"></script>
 <script>
@@ -56,7 +48,7 @@
   </div>
 
   <div class="col-md-7">
-    <ul class="nav nav-tabs track_nav" id="myTab" role="tablist" style="margin-bottom:3%">
+    <ul class="nav nav-tabs track_nav mb-3" id="myTab" role="tablist" onclick="setTimeout(check_tabs,250)">
       <li class="nav-item">
           <a class="nav-link active" id="track-tab" data-toggle="tab" href="#track" role="tab" aria-controls="track" aria-selected="true">Track</a>
       </li>
@@ -82,8 +74,8 @@
           <div class="input-group-prepend">
             <div class="input-group-text">Cross size</div>
           </div>
-          <input type="number" class="form-control" size="6" placeholder="az" name="az_cross">
-          <input type="number" class="form-control" size="6" placeholder="el" name="el_cross">
+          <input type="number" required class="form-control" size="6" placeholder="az" name="az_cross">
+          <input type="number" required class="form-control" size="6" placeholder="el" name="el_cross">
         </div>
         <br>
         <input type="submit" class="btn btn-outline-secondary" name="submit_cross" value="Start Cross">
@@ -94,22 +86,22 @@
           <div class="input-group-prepend">
             <div class="input-group-text">Frame size</div>
           </div>
-          <input type="number" step="0.5" class="form-control" size="5" placeholder="az" name="az_frame_lissajous">
-          <input type="number" step="0.5" class="form-control" size="5" placeholder="el" name="el_frame_lissajous">
+          <input type="number" required step="0.5" class="form-control" size="5" placeholder="az" name="az_frame_lissajous">
+          <input type="number" required step="0.5" class="form-control" size="5" placeholder="el" name="el_frame_lissajous">
         </div>
         <div class="input-group">
           <div class="input-group-prepend">
             <div class="input-group-text">Omega (&deg;/s)</div>
           </div>
-          <input type="number" step="0.1" class="form-control" size="1" placeholder="az" name="az_omega">
-          <input type="number" step="0.1" class="form-control" size="1" placeholder="el" name="el_omega">
+          <input type="number" step="0.1" class="form-control" size="1" placeholder="az, default:3" name="az_omega">
+          <input type="number" step="0.1" class="form-control" size="1" placeholder="el, default:2" name="el_omega">
         </div>
         <div class="input-group">
           <div class="input-group-prepend">
             <div class="input-group-text">Phi (&deg;/s)</div>
           </div>
-          <input type="number" step="0.1" class="form-control" size="5" placeholder="az" name="az_phi">
-          <input type="number" step="0.1" class="form-control" size="5" placeholder="el" name="el_phi">
+          <input type="number" step="0.1" class="form-control" size="5" placeholder="az, default: 0" name="az_phi">
+          <input type="number" step="0.1" class="form-control" size="5" placeholder="el, default: 0" name="el_phi">
         </div>
         <br>
         <input type="submit" class="btn btn-outline-secondary" name="submit_lissajous" value="Start Lissajous">
@@ -119,27 +111,27 @@
           <div class="input-group-prepend">
             <div class="input-group-text">Frame size</div>
           </div>
-          <input type="number" step="0.5" class="form-control" size="5" placeholder="az" name="az_frame_pong">
-          <input type="number" step="0.5" class="form-control" size="5" placeholder="el" name="el_frame_pong">
+          <input type="number" required step="0.5" class="form-control" size="5" placeholder="az" name="az_frame_pong">
+          <input type="number" required step="0.5" class="form-control" size="5" placeholder="el" name="el_frame_pong">
         </div>
         <div class="input-group">
           <div class="input-group-prepend">
-            <div class="input-group-text">Start off the target</div>
+            <div class="input-group-text">Start off</div>
           </div>
-          <input type="number" step="0.1" class="form-control" size="1" placeholder="az" name="az_start">
-          <input type="number" step="0.1" class="form-control" size="1" placeholder="el" name="el_start">
+          <input type="number" step="0.1" class="form-control" size="1" placeholder="az, default: 0" name="az_start">
+          <input type="number" step="0.1" class="form-control" size="1" placeholder="el, default: 0" name="el_start">
         </div>
         <div class="input-group">
           <div class="input-group-prepend">
             <div class="input-group-text">Start angle</div>
           </div>
-          <input type="number" step="0.1" class="form-control" size="5" placeholder="" name="start_angle">
+          <input type="number" step="0.1" class="form-control" size="5" placeholder="default: 30" name="start_angle">
         </div>
         <div class="input-group">
           <div class="input-group-prepend">
             <div class="input-group-text">Velocity (&deg;/s)</div>
           </div>
-          <input type="number" step="0.1" class="form-control" size="5" placeholder="" name="velocity">
+          <input type="number" step="0.1" class="form-control" size="5" placeholder="default: 1" name="velocity">
         </div>
         <br>
         <input type="submit" class="btn btn-outline-secondary" name="submit_pong" value="Start Pong">
@@ -150,14 +142,14 @@
           <div class="input-group-prepend">
             <div class="input-group-text">Frame size</div>
           </div>
-          <input type="number" step="0.5" class="form-control" size="5" placeholder="az" name="az_frame_raster">
-          <input type="number" step="0.5" class="form-control" size="5" placeholder="el" name="el_frame_raster">
+          <input type="number" required step="0.5" class="form-control" size="5" placeholder="az" name="az_frame_raster">
+          <input type="number" required step="0.5" class="form-control" size="5" placeholder="el" name="el_frame_raster">
         </div>
         <div class="input-group">
           <div class="input-group-prepend">
           <div class="input-group-text">Number of lines</div>
           </div>
-          <input type="number" class="form-control" name="raster_lines">
+          <input type="number" class="form-control" placeholder="default: 4" name="raster_lines">
         </div>
         <div class="input-group" style="margin-top:1%">
           <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -254,8 +246,6 @@
   </div>
 </div>
 <div class="row">
-</div>
-<div class="row">
   <div class="col" style="margin-top:3%">
     <h5>Track Queue</h5>
       <div class="table-vertical-scroll">
@@ -340,6 +330,12 @@
     $('[data-toggle="tooltip"]').tooltip()})
   };
   select();
+  function check_tabs(){
+    $('.tab-pane.fade input').attr("disabled", true);
+    $('.tab-pane.fade.show.active input').removeAttr("disabled");
+  };
+  check_tabs();
+
 </script>
 {% endblock %}
 

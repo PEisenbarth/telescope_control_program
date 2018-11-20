@@ -27,7 +27,7 @@
           {{ user.username.title }}
         </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            {% if user.is_superuser %}
+            {% if user.is_staff %}
               <a class="dropdown-item" href="/admin">Admin-Panel</a>
             {% endif %}
             <a class="dropdown-item" href="/password">Change Password</a>
