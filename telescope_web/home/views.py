@@ -1,4 +1,3 @@
-
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -36,9 +35,12 @@ def return_message(request, tag, message):
 def check_roach(request):
     ''' Checks if settings on the Roachboard Readout were done, applies it and starts the readout. 
     '''
-    if request.GET.get('submit_start_readout'):
-        roach.__init__('spectrum')    # Reinitialise to make sure to have default values
+    if request.GET.get('submit_start_readout') or request.GET.get('submit_start_power_readout'):
         if not roach.running:
+            if request.GET.get('submit_start_readout'):
+                roach.__init__('spectrum')    # Reinitialise to make sure to have default values
+            if request.GET.get('submit_start_power_readout'):
+                roach.__init__('power')
             bof = getvalue(request, 'select_bof', int)
             acc_len = getvalue(request, 'tbx_acc_len', eval)
             plot_min = getvalue(request, 'tbx_plot_min', int)

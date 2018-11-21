@@ -1,6 +1,6 @@
 <div class="row roach_row">
   <div class="col-md readout">
-    {% if roach.running %}
+    {% if not roach.running %}
       <svg id="mpl" version="1.1" viewBox="0 0 504 360" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       </svg>
       <script>
@@ -28,7 +28,16 @@
           {% endif %}
         </div>
       </div>
-        <form action="#">
+      <ul class="nav nav-tabs mb-2" id="roach-tabs" role="tablist"  onclick="setTimeout(check_roach_tabs,200)">
+        <li class="nav-item">
+          <a href="#spectrum" class="nav-link active" id="spectrum-tab" data-toggle="tab" aria-controls="spectrum" aria-selected="true">Spectrum</a>
+        </li>
+        <li class="nav-item">
+          <a href="#power" class="nav-link" id="power-tab" data-toggle="tab" aria-controls="power" aria-selected="false">Power</a>
+        </li>
+      </ul>
+      <div class="tab-content" id="roachTabContent" style="height:260px">
+        <div class="tab-pane fade show active" id="spectrum" role="tabpanel" aria-labelledby="spectrum-tab">
           <form action="#">
             <div class="input-group mb-2">
               <div class="input-group-prepend">
@@ -38,7 +47,7 @@
                 {% if roach.running %}
                 <option selected>{{ roach.boffile }}</option>
                 {% else %}
-                <option selected>Choose...</option>
+                <option selected>Choose file...</option>
                 {% for bof in roach.boffiles.spectrum %}
                 <option value="{{ forloop.counter0 }}">{{ bof }}</option>
                 {% endfor %}
@@ -78,10 +87,70 @@
           {% if roach.running %}
             <input type="submit" class="btn btn-outline-secondary" name="submit_stop_readout" value="Stop Readout">
           {% else %}
-            <input type="submit" class="btn btn-outline-secondary" name="submit_start_readout" value="Connect and Start Readout">
+            <input type="submit" class="btn btn-outline-secondary" name="submit_start_readout" value="Connect and start spectrum readout">
           </form>
           <br>
           {% endif %}
-        </form>
+        </div>
+        <div class="tab-pane fade" id="power" role="tabpanel" aria-labelledby="profile-tab">
+          <form action="#">
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <label class="input-group-text" for="select_bof">Boffile</label>
+              </div>
+              <select class="custom-select" id="select_bof_power" {% if roach.running %} disabled {% endif %} name="select_bof">
+                {% if roach.running %}
+                <option selected>{{ roach.boffile }}</option>
+                {% else %}
+                <option selected>Choose file...</option>
+                {% for bof in roach.boffiles.power %}
+                <option value="{{ forloop.counter0 }}">{{ bof }}</option>
+                {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Accumulation Length</div>
+              </div>
+              <input type="text" class="form-control" {% if roach.running%} disabled placeholder="{{ roach.acc_len }}"{% else %} placeholder="Default: 2**19 (=524288)" {% endif %} name="tbx_acc_len_power">
+            </div>
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Gain</div>
+              </div>
+              <input type="text" class="form-control" {% if roach.running%} disabled placeholder="{{ roach.gain }}"{% else %} placeholder="Default: 0x0fffffff" {% endif %} name="tbx_gain_power">
+            </div>
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <input type="checkbox" id="cbx_save_roach_power" class="boxes" {% if roach.running %} disabled {% endif %} {% if roach.save_data %} checked {% endif %} name="cbx_save_roach_power" value="Save Data" >
+                </div>
+              </div>
+              <div class="input-group-append">
+                <span class="input-group-text">Save Data</span>
+              </div>
+            </div>
+
+          {% if roach.running %}
+            <input type="submit" class="btn btn-outline-secondary" name="submit_stop_readout" value="Stop Readout">
+          {% else %}
+            <input type="submit" class="btn btn-outline-secondary" name="submit_start_power_readout" value="Connect and start power readout">
+          </form>
+          <br>
+          {% endif %}
+        </div>
+      </div>
     </div>
 </div>
+
+<script>
+    function check_roach_tabs(){
+      $('.tab-pane.fade input').attr("disabled", true);
+      $('.tab-pane.fade select').attr("disabled", true);
+      $('.tab-pane.fade.show.active input').removeAttr("disabled");
+      $('.tab-pane.fade.show.active select').removeAttr("disabled");
+    };
+    check_roach_tabs();
+
+</script>
