@@ -51,12 +51,17 @@
       </form>
       <br>
       <form action="#">
-        <div class="text-center">
+        <div class="text-center mb-3">
           {% if not halt%}
             <input type="submit" class="btn btn-outline-secondary w-50" name="submit_halt" value="Halt Telescopes">
           {% else %}
             <input type="submit" class="btn btn-outline-secondary w-50" name="submit_clear_halt" value="Clear Telescope Halt">
           {% endif %}
+        </div>
+      </form>
+      <form action="#">
+        <div class="text-center mb-3">
+          <input type="submit" name="submit_reset_tracks" class="btn btn-outline-secondary" value="Reset track function" title="In case of an error during tracking, use this to reset the track function" data-toggle="tooltip" data-placement="bottom">
         </div>
       </form>
     </div>

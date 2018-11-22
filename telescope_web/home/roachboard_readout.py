@@ -48,7 +48,7 @@ class RoachReadout():
         else:
             raise Exception('Unknown mode!')
         self.bitstream = self.boffiles[mode][0]
-        self.acc_len = 2 * (2 ** 28) / 1024
+        self.acc_len = None
         self.gain = 0x0fffffff
         self.save = False
         self.p = OptionParser()
@@ -101,6 +101,8 @@ class RoachReadout():
         return acc_n, dBmfloat, tmsp
 
     def plot_spectrum(self):
+        if not self.acc_len:
+            self.acc_len = 2 * (2 ** 28) / 1024
         self.fig = plt.figure(figsize=((7,5)))
         self.ax = self.fig.add_subplot(1,1,1)
         while self.running:
@@ -226,6 +228,9 @@ class RoachReadout():
             else:
                 print 'Skipped.'
             if self.mode != 'power':
+                if self.mode == 'spectrum' and not self.acc_len:
+                    if not self.acc_len:
+                        self.acc_len = 2 * (2 ** 28) / 1024
                 print 'Configuring accumulation period...',
                 self.fpga.write_int('acc_len',self.acc_len)
                 print 'done'
@@ -250,7 +255,7 @@ class RoachReadout():
             if self.save:
                 print 'Saving...'
                 with h5py.File('/home/telescopecontrol/PhilippE/DAQ/roachboard_readout/readout_%s.h5' % self.date, 'a') as hdf:
-                    dset = hdf.create_dataset('%s_mode_%s' % (self.t, self.mode), data=self.data)
+                    dset = hdf.create_dataset('%s_%s' % (self.t, self.mode), data=self.data)
                     # Add attributes to the dataset
                     dset.attrs['mode'] = self.mode
                     if self.mode == 'spectrum':

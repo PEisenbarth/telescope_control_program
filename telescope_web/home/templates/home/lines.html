@@ -1,0 +1,48 @@
+{% extends 'home/layout.html' %}
+
+{% block content %}
+<div class="row">
+  <div class="col-6">
+  <fieldset class="line-track">
+    <legend class="line-track">Line Track</legend>
+    <form action="#" class="mb-3">
+      <div class="input-group" id="input-list"></div>
+      {% load static %}
+      <img src="{% static 'home/img/plus.png' %}" onclick="append()" style="margin-right:2%" align="right" alt="">
+      <input type="submit" class="btn btn-outline-secondary" value="Start Line track">
+    </form>
+  </fieldset>
+  <script>
+    var x = 0;
+    function append(){
+    input = $(`<div class="input-group mb-2" id="input-list-${x}">
+                      <input type="number" step="0.01"  required placeholder='Azimuth' class="form-control">
+                      <input type="number" step="0.01" required placeholder='Elevation' class="form-control">
+                      <div class="input-group-append">
+                      <button type='button' class="btn btn-outline-secondary" onclick='del(${x})'>
+                      <img src="{% static 'home/img/minus.png' %}" width='80%' alt="">
+                      </button>
+                      </div>
+                    </div>`);
+    $("#input-list").append(input);
+    x++;
+    check();
+    };
+    function del(num){
+    x--;
+      input = '#input-list-' + num
+      $(input).remove();
+      check();
+    };
+    function check(){
+      if (x == 0){
+        $('#btn').attr('disabled', 'disabled');
+      }
+      else{
+        $('#btn').removeAttr('disabled');
+      };
+    };
+  </script>
+  </div>
+</div>
+{% endblock %}

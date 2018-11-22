@@ -482,18 +482,17 @@ class ObservationMode(object):
 if __name__ == '__main__':
     """For debugging issues"""
     from matplotlib import pyplot as plt
-    t = np.linspace(0, 2*np.pi,400)
+    t = np.linspace(0, 2*np.pi, 200)
     x = np.cos(t)
     y = np.sin(t)
     val_list = []
     for i, val in enumerate(x):
         val_list.append([val, y[i]])
-    print val_list
-    mode = obs_mode('Line',  linePoints=val_list, observationDuration=5)
+    mode = obs_mode('Line',  linePoints=val_list, observationDuration=50)
 
     az_list = []
     el_list = []
-    for i in np.linspace(0,300, 4000):
+    for i in np.linspace(0,50*60, 4000):
         mode.timeStampToCheck = Timestamp()+i
         az_list.append(mode.currentOff[0])
         el_list.append(mode.currentOff[1])

@@ -506,7 +506,7 @@ class OverallSettings(object):
                 pos[i].append(sensor.read()[2])
         return pos
 
-    def daq_pos(self, name=None):
+    def daq_pos(self, name=None, daq_attrs=None):
         '''
         Creates a hdf5 file for every day and stores the position of the current session in the group 'name'
         :param name:    string
@@ -537,6 +537,7 @@ class OverallSettings(object):
         used = True
         date = datetime.today().date().strftime('%Y_%m_%d')
         i = 1
+        # Define column names and data types
         dtype = np.dtype([
             ('Timestamp', np.float),
             ('Azimuth', np.float),
@@ -555,7 +556,10 @@ class OverallSettings(object):
                     i += 1
             for i, ant in enumerate(self.antennaList):
                 data_array = np.array(data_dict[ant], dtype=dtype)
-                G.create_dataset('%s' % ant.name, data=data_array)
+                dset = G.create_dataset('%s' % ant.name, data=data_array)
+                if isinstance(daq_attrs, dict):
+                    for key, val in daq_attrs.iteritems():
+                        dset.attrs[key] = val
             print 'Data saved!'
             self.data_saved = True
 

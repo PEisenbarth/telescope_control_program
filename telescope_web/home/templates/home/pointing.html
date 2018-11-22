@@ -1,11 +1,6 @@
 {% extends 'home/layout.html' %}
 
 {% block scripts %}
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-})
-</script>
 {% endblock %}
 
 {% block content %}
@@ -34,10 +29,12 @@
           <input type="submit" class='btn btn-outline-secondary btn-md special_pos' data-delay='{"show":"200"}' data-toggle="tooltip" data-placement="bottom" data-html="true" title="Moves telescopes to: <br>az: 18, el: 90" name="home" value="Move Home Position">
           <input type="submit" class='btn btn-outline-secondary btn-md special_pos' data-delay='{"show":"200"}' data-toggle="tooltip" data-placement="bottom" title="Moves telescopes to elevation 90° at their azimuth" name="safety" value="Move Safety Position">
         </form>
+        {% if user.is_superuser %}
         <h4>Shutdown control program</h4>
         <form action="#">
-            <input type="submit" class='btn btn-outline-danger' name="quit" value="Shut down">
+            <input type="submit" class='btn btn-outline-danger' name="quit" value="Shut down" title="<strong>Warning:</strong> This shuts down the telescope control program and therefore the server, too!" data-toggle="tooltip" data-placement="right" data-html="true">
         </form>
+        {% endif %}
 
       </div>
       <div class="tab-pane fade" id="azel" role="tabpanel" aria-labelledby="azel-tab">
@@ -89,8 +86,8 @@
         <div class="col">
             <form action="#">
                 <div class="input-group">
-                    <input type="text" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Allowed inputs: <br> float <br> string(format: 'Deg:min:sec')" required aria-label="long" name="gal_long" size="2" placeholder="Longitude" class="form-control">
-                    <input type="text" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Allowed inputs: <br> float <br> string(format: 'Deg:min:sec')" required aria-label="lat" name="gal_lat" size="2" placeholder="Latitude" class="form-control">
+                    <input type="text" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Allowed inputs: <br> float (decimal degrees)<br> string(format: 'Deg:min:sec')" required aria-label="long" name="gal_long" size="2" placeholder="Longitude" class="form-control">
+                    <input type="text" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Allowed inputs: <br> float (decimal degrees)<br> string(format: 'Deg:min:sec')" required aria-label="lat" name="gal_lat" size="2" placeholder="Latitude" class="form-control">
                     <div class="input-group-append">
                     <input class="btn btn-outline-secondary" type="submit" name="movegal" value="Move Galactic Coordinates">
                     </div>

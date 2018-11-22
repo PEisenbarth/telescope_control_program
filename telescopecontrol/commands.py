@@ -101,16 +101,11 @@ def stop_all_tracks():
     trackq.halt = True
     trackq.stop_all = True
     # If thread is waiting to start, cancel it
-    if trackq.waiting:
-        trackq.th.cancel()
-        tracks = trackq.track_Queue.qsize()
-        trackq.track_Queue.queue.clear()
-        print 'All tracks (%i) got cleared' % tracks
-        trackq.running = False
-        home()
-        trackq.stop_all = False
-        trackq.halt = False
     OVST.haltTelescopes()
+    trackq.track_Queue.queue.clear()
+    home()
+    trackq.halt = False
+    trackq.stop_all = False
 
 def mapping(mode, az_frame, el_frame, *args, **kwargs):
     return obs_mode(mode, az_frame, el_frame, *args, **kwargs)
@@ -150,6 +145,14 @@ def delete_track(num=None):
         print 'Track index not in list'
         for i, t in enumerate(trackq.track_Queue.queue):
             print i, t
+
+def reset_tracks():
+    """
+    In case of an error, this function resets the whole track function and initialises it again 
+    """
+    global trackq
+    stop_all_tracks()
+    trackq = TrackTarget(OVST)
 
 # def start_server():
 #     sys.path.append('/home/telescopecontrol/PhilippE/telescope_control/telescope_web')

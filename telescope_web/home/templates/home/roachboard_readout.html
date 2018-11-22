@@ -113,7 +113,7 @@
               <div class="input-group-prepend">
                 <div class="input-group-text">Accumulation Length</div>
               </div>
-              <input type="text" class="form-control" {% if roach.running%} disabled placeholder="{{ roach.acc_len }}"{% else %} placeholder="Default: 2**19 (=524288)" {% endif %} name="tbx_acc_len">
+              <input type="text" class="form-control" {% if roach.running%} disabled placeholder="{{ roach.acc_len }}"{% else %} placeholder="Default: 2**18 (=262144)" {% endif %} name="tbx_acc_len">
             </div>
             <div class="input-group mb-2">
               <div class="input-group-prepend">

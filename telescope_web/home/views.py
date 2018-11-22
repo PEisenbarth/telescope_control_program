@@ -98,19 +98,7 @@ def tracks(request):  # TODO
     program
     '''
     context = check_roach(request)
-    context ['nbar'] = 'track'
-    context['in_range'] = OVST.in_range
-    context['update_time'] = OVST.update_time
     do_track = False
-    current = current_track()
-    if current:
-        context['current_track'] = {
-            'target':       current[0],
-            'duration':     current[1],
-            'startTime':    current[2],
-            'mode':         current[3]
-        }
-    context['pending_tracks'] = pending_tracks()
     try:
         select = getvalue(request, 'select_target', str)
         if select:
@@ -139,10 +127,13 @@ def tracks(request):  # TODO
         if startTime == "":
             startTime = None
         do_track = True
+
     except:
         pass
     GoOff = None
     mode = None
+
+    # Check if one of the track options was submitted and evaluate the inputs
     if request.GET.get('submit_track'):
         print 'tracking %s for %i minutes' % (target, duration)
 
@@ -196,6 +187,7 @@ def tracks(request):  # TODO
         return redirect('/track')
 
     del_track = request.GET.get('del_track')
+
     if del_track:
         if del_track == 'current':
             stop_track()
@@ -206,6 +198,20 @@ def tracks(request):  # TODO
             except:
                 pass
         return redirect('/track')
+
+    context ['nbar'] = 'track'
+    context['in_range'] = OVST.in_range
+    context['update_time'] = OVST.update_time
+    current = current_track()
+    if current:
+        context['current_track'] = {
+            'target':       current[0],
+            'duration':     current[1],
+            'startTime':    current[2],
+            'mode':         current[3]
+        }
+    context['pending_tracks'] = pending_tracks()
+
     if request.GET.get('check_target'):
         target = str(request.GET.get('check_target_tbx'))
         try:
@@ -314,6 +320,9 @@ def tel_settings(request):
             OVST.openModbusConnections()
         else:
             OVST.closeAllModbusConnections()
+
+    if request.GET.get('submit_reset_tracks'):
+        reset_tracks()
 
     context['antennas'] = [ant.name for ant in OVST.antennaList]
     context['active_antennas'] = [ant.name for ant in OVST.active_antennas]

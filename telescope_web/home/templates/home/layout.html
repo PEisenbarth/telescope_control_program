@@ -12,6 +12,11 @@
     <script src="{% static 'home/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'home/js/Chart.js' %}"></script>
     <script src="{% static 'home/js/Chart.min.js' %}"></script>
+    <script>
+    // enable tooltips
+        $(function () {
+    $('[data-toggle="tooltip"]').tooltip()})
+    </script>
     {% block scripts %}
     {% endblock %}
 </head>

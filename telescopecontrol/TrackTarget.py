@@ -28,11 +28,14 @@ class TrackTarget:
         self.running = False
         self.halt = False
         self.stop_all = False
+        self.waiting = False
 
     def track(self, targetname, observationDuration=5, GoOffAzEl=None, startTime=None,
               moveIncrementalTime=60, mode = None):
             if startTime:
                 try:
+                    if len(startTime) == 5:  # time has format 'HH:MM'
+                        startTime += ':00'
                     if len(startTime) == 8:  # Only a time was written into it
                         date = datetime.datetime.now().date().strftime('%Y_%m_%d ')
                         startTime = date + startTime
@@ -50,8 +53,9 @@ class TrackTarget:
             else:
                 self.startTimeStamp = Timestamp()
 
-            if not checkAbsoluteSequenceHitsLimitSwitch(self.OVST, self.startTimeStamp, observationDuration*60,
-                                                        targetname, GoOffAzEl, mode)[0]:
+            check = checkAbsoluteSequenceHitsLimitSwitch(self.OVST, self.startTimeStamp, observationDuration*60,
+                                                        targetname, GoOffAzEl, mode)
+            if not check[0]:
                 self.track_Queue.put([targetname, observationDuration, GoOffAzEl, self.startTimeStamp, moveIncrementalTime,
                                       mode])
                 if not self.running:
@@ -64,7 +68,10 @@ class TrackTarget:
                            '(Target: %s, Duration: %i)' \
                           % (self.track_Queue.qsize()-1, targetname, observationDuration))
             else:
-                return ('error', "Can't track target without hitting a limit switch!")
+                if isinstance(check[1], str):
+                    return ('error', check[1])
+                else:
+                    return ('error', "Can't track target without hitting a limit switch")
 
     def _tracking_thread(self):
         '''     this takes one item(target) of :Queue: track_Queue and tracks it. This gets repeated until the Queue is
@@ -181,10 +188,42 @@ class TrackTarget:
                         print "Start observing Target '%s' at %s for %r minutes. " \
                               % (self.targetname, Timestamp().to_string(), self.observationDuration/60)
                         # Start position daq
+                        # Define the attributes which get saved to the hdf file
+                        daq_attrs = {
+                            'targetname':           self.targetname,
+                            'observation duration': self.observationDuration,
+                            'mode':                 self.mode.mode
+                        }
+                        if self.mode.mode == 'Lissajous':
+                            daq_attrs.update({
+                                'frame size':   (self.mode.az_frame, self.mode.el_frame),
+                                'omega':        (self.mode.omegaAz, self.mode.omegaEl),
+                                'phi':          (self.mode.phiAz, self.mode.phiEl),
+                            })
+                        if self.mode.mode == 'Pong':
+                            daq_attrs.update({
+                                'frame size':   (self.mode.az_frame, self.mode.el_frame),
+                                'start off':    (self.mode.startAz, self.mode.startEl),
+                                'start angle':  self.mode.startAngle,
+                                'velocity':     self.mode.velocity
+                            })
+                        if self.mode.mode == 'Raster':
+                            daq_attrs.update({
+                                'frame size':       (self.mode.az_frame, self.mode.el_frame),
+                                'number of lines':  self.mode.rasterLines,
+                                'first':            'Azimuth' if self.mode.firstAz else 'Elevation'
+                            })
+
+                        if goOffAzEl:
+                            daq_attrs.update({
+                                'mode':     'Cross',
+                                'arm length':       (goOffAzEl[0], goOffAzEl[0]),
+                            })
+
                         if isinstance(self.targetname, str):
-                            qth = threading.Thread(target=self.OVST.daq_pos, args=(self.targetname,))
+                            qth = threading.Thread(target=self.OVST.daq_pos, args=(self.targetname, daq_attrs))
                         else:
-                            qth = threading.Thread(target=self.OVST.daq_pos)
+                            qth = threading.Thread(target=self.OVST.daq_pos, args=(None, daq_attrs))
                         qth.start()
                         print 'Data Acquisition got started'
                         # Calculate the :var: 'endTimeStamp' at this line to avoid loosing time with moving to the target
@@ -275,7 +314,10 @@ def checkAbsoluteSequenceHitsLimitSwitch(OVST, startTimeStamp, observationDurati
         -------
         azEl:    List with lists containing azimuth elevation values
         """
-        azEl = check_target(OVST, targetname, timeStampToCheck, False)
+        try:
+            azEl = check_target(OVST, targetname, timeStampToCheck, False)
+        except Exception, e:
+            raise Exception(e)
         gOP.timeStampToCheck = timeStampToCheck
         azElOff = gOP.currentOff
         for i in range(len(antennas)):
@@ -290,7 +332,10 @@ def checkAbsoluteSequenceHitsLimitSwitch(OVST, startTimeStamp, observationDurati
         timeStampToCheck = startTimeStamp + i
         # Get azimuth and elevation of all antennas with the Offset
         # check_target returns  azimuth [0] and elevation [1]
-        azElTmSp.append(getAndAddAzElAndOff(timeStampToCheck))
+        try:
+            azElTmSp.append(getAndAddAzElAndOff(timeStampToCheck))
+        except:
+            return (True, "Target '%s' not in Catalogue" % targetname)
 
     # Check the elevation
     for ant in range(len(antennas)):
@@ -331,7 +376,6 @@ def checkAbsoluteSequenceHitsLimitSwitch(OVST, startTimeStamp, observationDurati
         if (len(roCntPossible)==0):
             # The azimuth limit switch will be hit by tracking the target
             hitsLimitSwitch=True
-            antStartAz.append([])
         else:
             # Get the start coordinate without rollover
             for i in range (len(roCntPossible)):
@@ -341,7 +385,7 @@ def checkAbsoluteSequenceHitsLimitSwitch(OVST, startTimeStamp, observationDurati
             antStartAz.append(roCntPossible)
     # Because it is 'call-by-reference' and later it needs the current time
     gOP.timeStampToCheck = None
-    return hitsLimitSwitch, antStartAz
+    return (hitsLimitSwitch, antStartAz)
 
 
 def sleepTimeWithChecks(self, sleepSec, fromTrack=False):
