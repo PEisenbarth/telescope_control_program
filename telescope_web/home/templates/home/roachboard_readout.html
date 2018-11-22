@@ -1,6 +1,6 @@
 <div class="row roach_row">
   <div class="col-md readout">
-    {% if not roach.running %}
+    {% if roach.running %}
       <svg id="mpl" version="1.1" viewBox="0 0 504 360" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       </svg>
       <script>
@@ -28,16 +28,16 @@
           {% endif %}
         </div>
       </div>
-      <ul class="nav nav-tabs mb-2" id="roach-tabs" role="tablist"  onclick="setTimeout(check_roach_tabs,200)">
+      <ul class="nav nav-tabs mb-2" id="roach-tabs" aria-disabled="true" {% if not roach.running %} onclick="setTimeout(check_roach_tabs,200)" {% endif %}>
         <li class="nav-item">
-          <a href="#spectrum" class="nav-link active" id="spectrum-tab" data-toggle="tab" aria-controls="spectrum" aria-selected="true">Spectrum</a>
+          <a href="#spectrum" class="nav-link {% if not roach.running or roach.running and roach.mode == 'spectrum' %} active {% endif %} {% if roach.running %}disabled {% endif %}" id="spectrum-tab" data-toggle="tab" aria-controls="spectrum" aria-selected="true">Spectrum</a>
         </li>
         <li class="nav-item">
-          <a href="#power" class="nav-link" id="power-tab" data-toggle="tab" aria-controls="power" aria-selected="false">Power</a>
+          <a href="#power" class="nav-link {% if roach.running %}disabled {% if roach.mode == 'power' %} active {% endif %} {% endif %}" id="power-tab" data-toggle="tab" aria-controls="power" aria-selected="false">Power</a>
         </li>
       </ul>
       <div class="tab-content" id="roachTabContent" style="height:260px">
-        <div class="tab-pane fade show active" id="spectrum" role="tabpanel" aria-labelledby="spectrum-tab">
+        <div class="tab-pane fade {% if not roach.running or roach.running and roach.mode == 'spectrum' %} show active {% endif %}" id="spectrum" role="tabpanel" aria-labelledby="spectrum-tab">
           <form action="#">
             <div class="input-group mb-2">
               <div class="input-group-prepend">
@@ -92,7 +92,7 @@
           <br>
           {% endif %}
         </div>
-        <div class="tab-pane fade" id="power" role="tabpanel" aria-labelledby="profile-tab">
+        <div class="tab-pane fade {% if roach.running and roach.mode == 'power' %} show active {% endif %}" id="power" role="tabpanel" aria-labelledby="profile-tab">
           <form action="#">
             <div class="input-group mb-2">
               <div class="input-group-prepend">
@@ -113,18 +113,18 @@
               <div class="input-group-prepend">
                 <div class="input-group-text">Accumulation Length</div>
               </div>
-              <input type="text" class="form-control" {% if roach.running%} disabled placeholder="{{ roach.acc_len }}"{% else %} placeholder="Default: 2**19 (=524288)" {% endif %} name="tbx_acc_len_power">
+              <input type="text" class="form-control" {% if roach.running%} disabled placeholder="{{ roach.acc_len }}"{% else %} placeholder="Default: 2**19 (=524288)" {% endif %} name="tbx_acc_len">
             </div>
             <div class="input-group mb-2">
               <div class="input-group-prepend">
                 <div class="input-group-text">Gain</div>
               </div>
-              <input type="text" class="form-control" {% if roach.running%} disabled placeholder="{{ roach.gain }}"{% else %} placeholder="Default: 0x0fffffff" {% endif %} name="tbx_gain_power">
+              <input type="text" class="form-control" {% if roach.running%} disabled placeholder="{{ roach.gain }}"{% else %} placeholder="Default: 0x0fffffff" {% endif %} name="tbx_gain">
             </div>
             <div class="input-group mb-2">
               <div class="input-group-prepend">
                 <div class="input-group-text">
-                  <input type="checkbox" id="cbx_save_roach_power" class="boxes" {% if roach.running %} disabled {% endif %} {% if roach.save_data %} checked {% endif %} name="cbx_save_roach_power" value="Save Data" >
+                  <input type="checkbox" id="cbx_save_roach_power" class="boxes" {% if roach.running %} disabled {% endif %} {% if roach.save_data %} checked {% endif %} name="cbx_save_roach" value="Save Data" >
                 </div>
               </div>
               <div class="input-group-append">
@@ -146,11 +146,13 @@
 
 <script>
     function check_roach_tabs(){
-      $('.tab-pane.fade input').attr("disabled", true);
-      $('.tab-pane.fade select').attr("disabled", true);
-      $('.tab-pane.fade.show.active input').removeAttr("disabled");
-      $('.tab-pane.fade.show.active select').removeAttr("disabled");
+      $('#roachTabContent .tab-pane.fade input').attr("disabled", true);
+      $('#roachTabContent .tab-pane.fade select').attr("disabled", true);
+      $('#roachTabContent .tab-pane.fade.show.active input').removeAttr("disabled");
+      $('#roachTabContent .tab-pane.fade.show.active select').removeAttr("disabled");
     };
-    check_roach_tabs();
+    {% if not roach.running %}
+    //check_roach_tabs();
+    {% endif %}
 
 </script>

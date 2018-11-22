@@ -1,8 +1,6 @@
 from Tkinter import *
 import threading
 import time
-from EntryWindow import EntryWindow
-from CatalogueEntryWindow import CatalogueEntryWindow
 from katpoint import Timestamp
 
 class ControlWindow(Tk):
@@ -27,19 +25,7 @@ class ControlWindow(Tk):
         # Fenster
         self.master.title("Control Window")
         self.master.geometry('800x600')
-        
-        #MenuBar
-        menubar = Menu(self.master)
-        fileMenu = Menu(menubar)
-        fileMenu.add_command(label="Add Catalogue", command=self.openCatalogueEntryWindow)
-        fileMenu.add_command(label="Add Raster Discrete", command=self.openRasterDiscreteEntryWindow)
-        fileMenu.add_command(label="Add Raster", command=self.openRasterEntryWindow)
-        fileMenu.add_command(label="Add Lissajous", command=self.openLissajousEntryWindow)
-        fileMenu.add_command(label="Add Pong", command=self.openPongEntryWindow)
-        menubar.add_cascade(label="Add", menu=fileMenu)
-        self.master.config(menu = menubar)
-        
-        
+
         # Measures
         self.x1 = 20 #fist column
         self.x2 = 180 # second  column
@@ -168,18 +154,7 @@ class ControlWindow(Tk):
         self.tbxConnectionStatusStr.place(x=self.x3, y = 420)
 
         
-        # InterpreterWindow
-        #
-        # self.tbxInterpreterOut = Text(self.master,state='disabled', width=70, height=40)
-        # self.tbxInterpreterOut.place(x=800, y = 20)
-        #
-        # self.tbxInterpreterIn = Text(self.master, width=67, height=2 )
-        # self.tbxInterpreterIn.place(x=825, y = 680)
-        #
-        # self.lblInterpreterMark = Label(master=self.master, text='>')
-        # self.lblInterpreterMark.place(x=800, y=680)
-        
-        # A list with the same order as the sensor list. 
+        # A list with the same order as the sensor list.
         # It uses later the :meth: 'value'.
         self.tbxListValue = []
         self.tbxListValue.append(self.tbxBasicErrorInt)
@@ -277,35 +252,6 @@ class ControlWindow(Tk):
         tbxobj.configure(background=color)
         tbxobj.configure(state="disabled")
 
-    def openCatalogueEntryWindow(self):
-        '''Open a window, in which several targets can be tracked.
-        There is the option to make crosses on a target
-        '''
-        self.CEW = CatalogueEntryWindow(Toplevel(self.master), self.OVST)
-
-    def openRasterEntryWindow(self):
-        '''Open a window in which the settings for making a raster can be made.
-         '''
-        self.REW = EntryWindow(Toplevel(self.master), self.OVST, 'Raster')
-
-    def openRasterDiscreteEntryWindow(self):
-        '''Open a window in which the settings for making a raster with discrete points can be made.
-         '''
-        self.RDEW = EntryWindow(Toplevel(self.master), self.OVST, 'RasterDiscrete')
-
-    def openLissajousEntryWindow(self):
-        '''Open a window in which the settings for making lissajous figures can be made.
-         '''
-        self.LEW = EntryWindow(Toplevel(self.master), self.OVST, 'Lissajous')
-
-    def openPongEntryWindow(self):
-        '''Open a window in which the settings for making the 'Pong' function can be made.
-         '''
-        self.PEW = EntryWindow(Toplevel(self.master), self.OVST, 'Pong')
-
-   
-
-   
 
 class WindowThread(threading.Thread):
     def __init__(self,OVST):

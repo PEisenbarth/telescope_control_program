@@ -11,7 +11,7 @@ from telescopecontrol.commands import *
 from update_Status import update
 from roachboard_readout import RoachReadout
 
-update(OVST)
+update(OVST, current_track)
 roach = RoachReadout('spectrum')
 
 def getvalue(request, name, val_type):
@@ -47,7 +47,7 @@ def check_roach(request):
             plot_max = getvalue(request, 'tbx_plot_max', int)
 
             if bof != None:
-                roach.bitstream = roach.boffiles[bof]
+                roach.bitstream = roach.boffiles[roach.mode][bof]
             if acc_len:
                 roach.acc_len = acc_len
             try:    # Convert gain string to hex
@@ -71,6 +71,7 @@ def check_roach(request):
         while roach.save:   # Wait until Data is saved
             time.sleep(1)
     return {'roach': {'running':    roach.running,
+                      'mode':       roach.mode,
                       'boffiles':   roach.boffiles,
                       'boffile':    roach.bitstream,
                       'acc_len':    roach.acc_len,

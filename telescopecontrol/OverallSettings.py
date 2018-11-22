@@ -1,6 +1,5 @@
 from Python_Diagnostic_Program_Modified import PythonDiagnosticProgramm
 from katpoint import Timestamp, Catalogue, construct_azel_target, construct_radec_target, deg2rad, Target
-from katpoint.target import construct_target_params
 from PLCCommunication import PLCCommunicationQueue, PLCCommunicationThread
 from SensorClassModifications import _sensorClassModification
 from Window import WindowThread
@@ -134,8 +133,6 @@ class OverallSettings(object):
         self.in_range = None
         threading.Thread(target=self.check_in_range, args=(True,)).start()
 
-        # Start a server thread
-        # SrvrThrd=ServerThread() #TODO enable it and import. The Serverthread has not implemented all methods now.
 
 ##### Telescope specific settings #####
 
@@ -561,3 +558,6 @@ class OverallSettings(object):
                 G.create_dataset('%s' % ant.name, data=data_array)
             print 'Data saved!'
             self.data_saved = True
+
+    def get_target_pos(self, target, tmsp=None, check=True):
+        return check_target(self, target, tmsp, check=check)

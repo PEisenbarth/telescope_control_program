@@ -64,11 +64,11 @@ class RoachReadout():
         self.running = False # As long as readout is true, the data gets plotted
         self.plot_lims = [13750, 13800]
         self.ADC_correction = 1.28
-
+        self.data = []
 
 
     def get_spectrum(self):
-        #get the data...
+        # get the data...
         acc_n = self.fpga.read_uint('acc_cnt')
 
         a_0=struct.unpack('>8192l',self.fpga.read('even',8192*4,0))
@@ -103,10 +103,6 @@ class RoachReadout():
     def plot_spectrum(self):
         self.fig = plt.figure(figsize=((7,5)))
         self.ax = self.fig.add_subplot(1,1,1)
-        self.running = True
-        self.date = datetime.today().date().strftime('%Y_%m_%d')
-        self.t = str(datetime.now().time())[:8]
-        self.data = []
         while self.running:
             acc_n, interleave_a, tmsp = self.get_spectrum()
             if acc_n != self.old_acc_n: #Draw plot only when acc_n has changed
@@ -127,17 +123,19 @@ class RoachReadout():
                 # mpld3.save_html(self.fig,
                 #                 '/home/telescopecontrol/PhilippE/telescope_control/telescope_web/home/templates/home/roach_plot.html')
                 self.old_acc_n = acc_n
-            time.sleep(1)
+            time.sleep(0.5)
 
     def get_power(self):
         # get the data...
         print("Get Data")
         total_power = 0.0
         run = False
+
         while run == False:
             if self.fpga.read_int('acc_cnt') == 0:
                 # print "Readout register one!! Loop %s of %s." %(i,samples)
                 d = self.fpga.read('one', 65536 * 4, 0)
+                tmsp = time.time()
                 dint = numpy.array(struct.unpack('>65536l', d))
                 for j in range(65536):
                     self.dfloat[j] = dint[j] / numpy.float64(8192 * 4)
@@ -169,9 +167,11 @@ class RoachReadout():
 
         if len(self.interleave_a) > 1000:
             self.interleave_a.pop(0)
+        #if self.save:
 
         # interleave_a.append(10*numpy.log10(total_power))
         self.interleave_a.append(self.total_power_dbm)
+        self.data.append([tmsp, self.total_power_dbm])
 
         return self.fpga.read_int('acc_cnt'), self.interleave_a
 
@@ -181,9 +181,8 @@ class RoachReadout():
         self.interleave_a = list()
         self.fig = plt.figure(figsize=((7,5)))
         self.ax = self.fig.add_subplot(1,1,1)
-        self.running = True
         self.date = datetime.today().date().strftime('%Y_%m_%d')
-        self.t = str(datetime.now().time())[:8]
+        self.starttime = str(datetime.now().time())[:8]
         self.data = []
         while self.running:
             acc_n, interleave_a = self.get_power()
@@ -200,7 +199,9 @@ class RoachReadout():
                 format='svg')
 
     def run(self):
-
+        self.date = datetime.today().date().strftime('%Y_%m_%d')
+        self.t = str(datetime.now().time())[:8]
+        self.running = True
         try:
             #loggers = []self.opts
             #lh=corr.log_handlers.DebugLogHandler()
@@ -248,8 +249,15 @@ class RoachReadout():
                 self.plot_power()
             if self.save:
                 print 'Saving...'
-                with h5py.File('/home/telescopecontrol/PhilippE/DAQ/readout_%s.h5' % self.date, 'a') as hdf:
-                    hdf.create_dataset(self.t, data=self.data)
+                with h5py.File('/home/telescopecontrol/PhilippE/DAQ/roachboard_readout/readout_%s.h5' % self.date, 'a') as hdf:
+                    dset = hdf.create_dataset('%s_mode_%s' % (self.t, self.mode), data=self.data)
+                    # Add attributes to the dataset
+                    dset.attrs['mode'] = self.mode
+                    if self.mode == 'spectrum':
+                        dset.attrs['plot_lims'] = self.plot_lims
+                    dset.attrs['boffile'] = self.bitstream
+                    dset.attrs['acc_len'] = self.acc_len
+                    dset.attrs['gain'] = self.gain
                 self.save = False   # Set to False to show that data is saved
 
 
@@ -274,5 +282,8 @@ class RoachReadout():
         except: pass
 
 if __name__ == '__main__':
-    roach = RoachReadout('power')
+    roach = RoachReadout('spectrum')
     roach.run()
+    time.sleep(10)
+    roach.running = False
+

@@ -166,9 +166,16 @@ class TrackTarget:
                     azel = check_target(self.OVST, self.targetname)
                     self.mode.startTimeStamp = Timestamp()
                     azel_off = self.mode.currentOff
-                    self.current_track = [targetname, observationDuration, 'Moving to start', self.mode.mode]
+                    if goOffAzEl:
+                        self.current_track = [targetname, observationDuration, 'Moving to start', 'Cross']
+                    else:
+                        self.current_track = [targetname, observationDuration, 'Moving to start', self.mode.mode]
                     self.OVST.move_to_pos(self.targetname, for_track=True, azel_off=azel_off)
-                    self.current_track = [targetname, observationDuration, Timestamp().to_string(), self.mode.mode]
+                    if goOffAzEl:
+                        self.current_track = [targetname, observationDuration, Timestamp().to_string(), 'Cross']
+                    else:
+                        self.current_track = [targetname, observationDuration, Timestamp().to_string(), self.mode.mode]
+
                     if not self.halt:
                         print "In start position."
                         print "Start observing Target '%s' at %s for %r minutes. " \
@@ -255,7 +262,8 @@ def checkAbsoluteSequenceHitsLimitSwitch(OVST, startTimeStamp, observationDurati
     # List with azEl for all antennas for each Timestamp
     azElTmSp = [] # [Timestamp][Antenna][Azimuth=0,Elevation=1]
     def getAndAddAzElAndOff(timeStampToCheck):
-        """This method gets for the :Timestamp: 'timeStampToCheck' the azimuth and elevation and the 'OffPointing'.
+        """
+        This method gets for the :Timestamp: 'timeStampToCheck' the azimuth and elevation and the 'OffPointing'.
         It also add the 'OffPointing to azimuth and elevation values.
 
         params
@@ -267,7 +275,7 @@ def checkAbsoluteSequenceHitsLimitSwitch(OVST, startTimeStamp, observationDurati
         -------
         azEl:    List with lists containing azimuth elevation values
         """
-        azEl = check_target(OVST, targetname, timeStampToCheck)
+        azEl = check_target(OVST, targetname, timeStampToCheck, False)
         gOP.timeStampToCheck = timeStampToCheck
         azElOff = gOP.currentOff
         for i in range(len(antennas)):

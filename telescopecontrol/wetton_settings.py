@@ -28,7 +28,7 @@ def init_wetton_telescope(OVST):
         OVST.sensorUpdaterList.append(sensor)
 
     # directory in which the position data gets stored
-    OVST.daq_dirpath = '/home/telescopecontrol/PhilippE/telescope_control/telescopecontrol/DAQ'
+    OVST.daq_dirpath = '/home/telescopecontrol/PhilippE/DAQ/antenna_positions'
 
     OVST.az_limit = [173, 150]
     OVST.el_limit = [25, 95]
