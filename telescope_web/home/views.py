@@ -4,11 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
-# from telescopecontrol.check_target import *
-# from telescopecontrol.commands import *
-from .check_target import *
-from .commands import *
-# from roachboard_readout import RoachReadout
+from telescopecontrol.check_target import *
+from telescopecontrol.commands import *
+# from .check_target import *
+# from .commands import *
+from roachboard_readout import RoachReadout
 from update_Status import update
 
 update(OVST, current_track)
@@ -43,8 +43,10 @@ def check_roach(request):
                 roach.__init__('power')
             bof = getvalue(request, 'select_bof', int)
             acc_len = getvalue(request, 'tbx_acc_len', eval)
-            plot_min = getvalue(request, 'tbx_plot_min', int)
-            plot_max = getvalue(request, 'tbx_plot_max', int)
+            xlim_min = getvalue(request, 'tbx_xlim_min', float)
+            xlim_max = getvalue(request, 'tbx_xlim_max', float)
+            ylim_min = getvalue(request, 'tbx_ylim_min', float)
+            ylim_max = getvalue(request, 'tbx_ylim_max', float)
 
             if bof != None:
                 roach.bitstream = roach.boffiles[roach.mode][bof]
@@ -56,13 +58,23 @@ def check_roach(request):
                     roach.gain = gain
             except:
                 pass
-            if plot_min:
-                roach.plot_lims[0] = plot_min
-            if plot_max:
-                roach.plot_lims[1] = plot_max
+            if xlim_min:
+                roach.plot_xlims[0] = xlim_min
+            if xlim_max:
+                roach.plot_xlims[1] = xlim_max
+            if ylim_min:
+                roach.plot_ylims[0] = ylim_min
+            if ylim_max:
+                roach.plot_ylims[1] = ylim_max
+
             if request.GET.get('cbx_save_roach'):
                 roach.save = True
                 print 'Saving data'
+                filename = getvalue(request, 'tbx_filename', str)
+                if filename:
+                    if not filename.endswith('.h5'):
+                        filename += '.h5'
+                    roach.filename = filename
             threading.Thread(target=roach.run).start()
             time.sleep(2)   # Give some time to let the server connect to the roachboard
 
@@ -77,9 +89,10 @@ def check_roach(request):
                       'acc_len':    roach.acc_len,
                       'gain':       roach.gain,
                       'connected':  roach.fpga.is_connected() if roach.fpga else None,
-                      'plot_min':   roach.plot_lims[0],
-                      'plot_max':   roach.plot_lims[1],
-                      'save_data':  roach.save
+                      'plot_min':   roach.plot_xlims[0],
+                      'plot_max':   roach.plot_xlims[1],
+                      'save_data':  roach.save,
+                      'filename':   roach.filename
                       }
             }
 

@@ -36,7 +36,7 @@
           <a href="#power" class="nav-link {% if roach.running %}disabled {% if roach.mode == 'power' %} active {% endif %} {% endif %}" id="power-tab" data-toggle="tab" aria-controls="power" aria-selected="false">Power</a>
         </li>
       </ul>
-      <div class="tab-content" id="roachTabContent" style="height:260px">
+      <div class="tab-content" id="roachTabContent" style="height:300px">
         <div class="tab-pane fade {% if not roach.running or roach.running and roach.mode == 'spectrum' %} show active {% endif %}" id="spectrum" role="tabpanel" aria-labelledby="spectrum-tab">
           <form action="#">
             <div class="input-group mb-2">
@@ -72,19 +72,27 @@
                   <input type="checkbox" id="cbx_save_roach" class="boxes" {% if roach.running %} disabled {% endif %} {% if roach.save_data %} checked {% endif %}name="cbx_save_roach" value="Save Data" >
                 </div>
               </div>
-              <div class="input-group-append">
-                <span class="input-group-text">Save Data</span>
+              <div class="input-group-prepend">
+                <div class="input-group-text">Save Data</div>
               </div>
+                <input type="text" {% if roach.running %} disabled {% if roach.save_data %} placeholder="{{ roach.filename }}" {% else %} placeholder="" {% endif %} {% else %} placeholder="Filename" {% endif %} name="tbx_filename" class="form-control">
             </div>
             <div class="input-group mb-2">
               <div class="input-group-prepend">
-                <div class="input-group-text">Plot limits</div>
+                <div class="input-group-text">Plot limits (x)</div>
               </div>
-              <input type="number" step="1" class="form-control" name="tbx_plot_min" {% if roach.running %} disabled placeholder="{{ roach.plot_min }}" {% else %} placeholder="Min default: 13750" {% endif %}>
-              <input type="number" step="1" class="form-control" name="tbx_plot_max" {% if roach.running %} disabled placeholder="{{ roach.plot_max }}" {% else %} placeholder="Max default: 13800" {% endif %}>
+              <input type="number" step="0.01" class="form-control" name="tbx_xlim_min" {% if roach.running %} disabled placeholder="{{ roach.plot_min }}" {% else %} placeholder="Min default: 13750" {% endif %}>
+              <input type="number" step="0.01" class="form-control" name="tbx_xlim_max" {% if roach.running %} disabled placeholder="{{ roach.plot_max }}" {% else %} placeholder="Max default: 13800" {% endif %}>
             </div>
 
-          {% if roach.running %}
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Plot limits (y)</div>
+              </div>
+              <input type="number" step="0.01" class="form-control" name="tbx_ylim_min" {% if roach.running %} disabled placeholder="{{ roach.plot_min }}" {% else %} placeholder="Min default: -84" {% endif %}>
+              <input type="number" step="0.01" class="form-control" name="tbx_ylim_max" {% if roach.running %} disabled placeholder="{{ roach.plot_max }}" {% else %} placeholder="Max default: -83" {% endif %}>
+            </div>
+            {% if roach.running %}
             <input type="submit" class="btn btn-outline-secondary" name="submit_stop_readout" value="Stop Readout">
           {% else %}
             <input type="submit" class="btn btn-outline-secondary" name="submit_start_readout" value="Connect and start spectrum readout">
@@ -124,12 +132,13 @@
             <div class="input-group mb-2">
               <div class="input-group-prepend">
                 <div class="input-group-text">
-                  <input type="checkbox" id="cbx_save_roach_power" class="boxes" {% if roach.running %} disabled {% endif %} {% if roach.save_data %} checked {% endif %} name="cbx_save_roach" value="Save Data" >
+                  <input type="checkbox" id="cbx_save_roach_power" class="boxes" {% if roach.running %} disabled {% endif %} {% if roach.save_data %} checked {% endif %}name="cbx_save_roach" value="Save Data" >
                 </div>
               </div>
-              <div class="input-group-append">
-                <span class="input-group-text">Save Data</span>
+              <div class="input-group-prepend">
+                <div class="input-group-text">Save Data</div>
               </div>
+                <input type="text" {% if roach.running %} disabled {% if roach.save_data %} placeholder="{{ roach.filename }}" {% else %} placeholder="" {% endif %} {% else %} placeholder="Filename" {% endif %} name="tbx_filename" class="form-control">
             </div>
 
           {% if roach.running %}

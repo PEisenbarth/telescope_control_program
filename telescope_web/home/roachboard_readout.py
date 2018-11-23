@@ -62,9 +62,13 @@ class RoachReadout():
         self.fpga = None
         self.old_acc_n = None
         self.running = False # As long as readout is true, the data gets plotted
-        self.plot_lims = [13750, 13800]
+        self.plot_xlims = [13750, 13800]
+        self.plot_ylims = [-84, -83]
         self.ADC_correction = 1.28
         self.data = []
+        self.directory = '/home/telescopecontrol/PhilippE/DAQ/roachboard_readout/'
+        date = datetime.today().date().strftime('%Y_%m_%d')
+        self.filename = 'readout_%s.h5' % date
 
 
     def get_spectrum(self):
@@ -94,8 +98,8 @@ class RoachReadout():
         if Power == 0:
             Power = 0.0000001
         print "Power in dBm: %s " % (10 * math.log10(Power))
-        if self.save and acc_n != self.old_acc_n:
-            d = numpy.insert(dBmfloat[self.plot_lims[0]:self.plot_lims[1]], 0, tmsp)
+        if self.save and acc_n != self.old_acc_n and acc_n > 2:
+            d = numpy.insert(dBmfloat[self.plot_xlims[0]:self.plot_xlims[1]], 0, tmsp)
             self.data.append(d)
 
         return acc_n, dBmfloat, tmsp
@@ -114,12 +118,12 @@ class RoachReadout():
                 plt.title('Integration number %i.'%acc_n)
                 plt.ylabel('Power (dBm)')
                 plt.ylim()
-                plt.ylim(-84,-83)
+                plt.ylim(self.plot_ylims[0],self.plot_ylims[1])
                 plt.grid(True)
                 plt.xlabel('Channel')
                 # plt.xlim(0, 16384)
-                plt.xlim(self.plot_lims[0],self.plot_lims[1])
-                plt.plot((13776, 13776), (-84, -83), 'k', linewidth=2.0)
+                plt.xlim(self.plot_xlims[0], self.plot_xlims[1])
+                plt.plot((13776, 13776), (self.plot_ylims[0], self.plot_ylims[1]), 'k', linewidth=2.0)
                 plt.savefig('/home/telescopecontrol/PhilippE/telescope_control/telescope_web/home/templates/home/roach_plot.html',
                             format='svg')
                 # mpld3.save_html(self.fig,
@@ -201,7 +205,6 @@ class RoachReadout():
                 format='svg')
 
     def run(self):
-        self.date = datetime.today().date().strftime('%Y_%m_%d')
         self.t = str(datetime.now().time())[:8]
         self.running = True
         try:
@@ -254,12 +257,12 @@ class RoachReadout():
                 self.plot_power()
             if self.save:
                 print 'Saving...'
-                with h5py.File('/home/telescopecontrol/PhilippE/DAQ/roachboard_readout/readout_%s.h5' % self.date, 'a') as hdf:
+                with h5py.File(self.directory + self.filename, 'a') as hdf:
                     dset = hdf.create_dataset('%s_%s' % (self.t, self.mode), data=self.data)
                     # Add attributes to the dataset
                     dset.attrs['mode'] = self.mode
                     if self.mode == 'spectrum':
-                        dset.attrs['plot_lims'] = self.plot_lims
+                        dset.attrs['plot_xlims'] = self.plot_xlims
                     dset.attrs['boffile'] = self.bitstream
                     dset.attrs['acc_len'] = self.acc_len
                     dset.attrs['gain'] = self.gain

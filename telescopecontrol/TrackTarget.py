@@ -191,7 +191,7 @@ class TrackTarget:
                         # Define the attributes which get saved to the hdf file
                         daq_attrs = {
                             'targetname':           self.targetname,
-                            'observation duration': self.observationDuration,
+                            'observation duration': self.observationDuration/60,
                             'mode':                 self.mode.mode
                         }
                         if self.mode.mode == 'Lissajous':

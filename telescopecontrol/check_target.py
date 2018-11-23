@@ -1,5 +1,6 @@
 from katpoint import Target, rad2deg, Timestamp
 import time
+from datetime import datetime
 # Limits             Az             El
 #               150     -187    95      25
 #                       =173
@@ -29,6 +30,12 @@ def check_target(OVST, target, tmstmp=None, check=True):
             target = catalogue[target]
         except ValueError:
             raise ValueError("Target not in Catalogue")
+
+    if isinstance(tmstmp, str):
+        if tmstmp and len(tmstmp) == 5:
+            tmstmp += ':00'
+        if tmstmp and len(tmstmp) == 8:
+            tmstmp = str(datetime.now().date()) + ' ' + tmstmp
 
     if not tmstmp:
         tmstmp = Timestamp()
