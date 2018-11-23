@@ -62,8 +62,9 @@ class Vars(Queue):
 
 
 
-class Roach():
-    def __init__(self):
+class RoachReadout():
+    def __init__(self, mode):
+        self.mode = mode
         self.katcp_port=7147
         self.boffiles = ['tut3.bof',                        #original design with an accu length 2^10
                          'cw_vers_2_2017_Apr_25_1221.bof',  #test()CW readout design with an accu length of 2^9
@@ -87,7 +88,7 @@ class Roach():
         self.plot_lims = [13750, 13800]
 
 
-roach = Roach()
+roach = RoachReadout('spectrum')
 OVST = Vars()
 
 # Decorator function that threads the decorated function

@@ -4,18 +4,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
-from telescopecontrol.check_target import *
-from telescopecontrol.commands import *
-# from .check_target import *
-# from .commands import *
+# from telescopecontrol.check_target import *
+# from telescopecontrol.commands import *
+from .check_target import *
+from .commands import *
+# from roachboard_readout import RoachReadout
 from update_Status import update
-from roachboard_readout import RoachReadout
 
 update(OVST, current_track)
 roach = RoachReadout('spectrum')
 
 def getvalue(request, name, val_type):
-    """ 
+    """
         Converts the value of the html form element 'name' into 'val_type'
     """
     try:
@@ -33,7 +33,7 @@ def return_message(request, tag, message):
 
 
 def check_roach(request):
-    ''' Checks if settings on the Roachboard Readout were done, applies it and starts the readout. 
+    ''' Checks if settings on the Roachboard Readout were done, applies it and starts the readout.
     '''
     if request.GET.get('submit_start_readout') or request.GET.get('submit_start_power_readout'):
         if not roach.running:
@@ -92,7 +92,7 @@ def index(request):
 @login_required()
 def tracks(request):  # TODO
     '''
-    This is the view function for /track. It checks if a form for a tracking mode was submitted and calls the corresponding 
+    This is the view function for /track. It checks if a form for a tracking mode was submitted and calls the corresponding
     funciton. After that, the user gets redirected to /track
     The keys of the dictionaries must have the same name as the kwargs in ObservationMode of the telescope control
     program
@@ -214,15 +214,22 @@ def tracks(request):  # TODO
 
     if request.GET.get('check_target'):
         target = str(request.GET.get('check_target_tbx'))
+        tmsp = getvalue(request, 'check_tmsp_tbx', str)
+        if len(tmsp) == 5:
+            tmsp += ':00'
+        if tmsp == '':
+            tmsp = None
         try:
-            azel = check_target(OVST, target, check=False)
+            azel = check_target(OVST, target, tmstmp=tmsp, check=False)
             azel = [[round(item[0], 4), round(item[1], 4)] for item in azel]
+            for i, pos in enumerate(azel):
+                pos.insert(0, OVST.antennaList[i].name)  # Add the corresponding atnennaname to the positions
             context.update({'target_ok': target,
-                            'azel': azel})
+                            'azel': azel,
+                            'tmsp': tmsp})
         except ValueError:
             context.update({'target_error': '%s is not in Catalogue' % target})
-        except LookupError:
-            context.update({'target_error': '%s is not in range' % target})
+        context.update({'checked': True})
         return render(request, 'home/track.html', context)
     return render(request, 'home/track.html', context)
 

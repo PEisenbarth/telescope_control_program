@@ -162,7 +162,7 @@
 </div>
 </form>
 <div class="row align-items-end" style="margin-top:3%">
-  <div class="col-6">
+  <div class="col-8">
     <h5>Targets in range</h5>
     <script>
       $(document).ready(function(){
@@ -181,37 +181,72 @@
           <img src="{% static 'home/svg/search.svg' %}" alt="search">
         </div>
       </div>
-    <input type="text" required class="form-control w-25" id="search" onkeyup="myFunction()" name="check_target_tbx" placeholder="targetname">
+      <input type="text" required class="form-control" id="search" onkeyup="myFunction()" name="check_target_tbx" placeholder="targetname">
+      <input type="time" step="1" class="form-control" name="check_tmsp_tbx">
     <div class="input-group-append">
       <input type="submit" class="btn btn-outline-secondary" value="Check Target" name="check_target">
     </div>
     </div>
     </form>
+    {% if checked %}
+      <div class="modal fade" id="checked_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content" style="background-color: #e6e6e6">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">
+                {% if target_ok%}
+                  {% if tmsp %}
+                    Position of {{ target_ok }} at {{ tmsp }}
+                  {% else %}
+                    Current position of {{ target_ok }}
+                  {% endif %}
+                {% else %}
+                  <span style="color:red">Error</span>
+                {% endif %}
+              </h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              {% if target_error %}
+                <h6>{{target_error}}</h6>
+              {% endif %}
+              {% if target_ok %}
+                <table class="table table-hover table-active">
+                  <thead>
+                    <tr>
+                      <th scope="col">Antenna#</th>
+                      <th scope="col">Azimuth</th>
+                      <th scope="col">Elevation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for antenna, az,el in azel %}
+                    <tr>
+                      <th scope="row">{{ antenna }}</th>
+                      <td>{{az}}</td>
+                      <td>{{el}}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              {% endif %}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        $(window).on('load',function(){
+        $('#checked_modal').modal('show');
+        });
+      </script>
+    {% endif %}
   </div>
-  <div class="col-6" style="text-align:right">
-    {% if target_error %}
-      <h6>{{target_error}}</h6>
-    {% endif %}
-    {% if target_ok %}
-      <table class="table table-hover table-active">
-        <thead>
-          <tr>
-            <th scope="col">Antenna#</th>
-            <th scope="col">Azimuth</th>
-            <th scope="col">Elevation</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for az,el in azel %}
-          <tr>
-            <th scope="row">{{forloop.counter}}</th>
-            <td>{{az}}</td>
-            <td>{{el}}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    {% endif %}
+  <div class="col-4" style="text-align:right">
 
     <p style="text-align:right"><strong>Last updated: {{ update_time }}</strong></p>
   </div>
@@ -255,19 +290,19 @@
         </thead>
         <tbody>
           {% if current_track %}
-          <tr>
-            <th scope="row">Current</th>
-              <td><b>{{ current_track.target }}</b></td>
-              <td><b>{{ current_track.duration }}</b></td>
-              <td><b>{{ current_track.startTime }}</b></td>
-              <td><b>{{ current_track.mode }}</b></td>
-              <td style="text-align:right">
-                <a href="/track?del_track=current" class="x_link">
-                    <img src="{% static 'home/svg/x.svg' %}" class="x_default" width="12%" alt="">
-                    <img src="{% static 'home/svg/x_hover.svg' %}" class="x_hover" width="12%" alt="">
-                </a>
-              </td>
-          </tr>
+            <tr>
+              <th scope="row">Current</th>
+                <td><b>{{ current_track.target }}</b></td>
+                <td><b>{{ current_track.duration }}</b></td>
+                <td><b>{{ current_track.startTime }}</b></td>
+                <td><b>{{ current_track.mode }}</b></td>
+                <td style="text-align:right">
+                  <a href="/track?del_track=current" class="x_link">
+                      <img src="{% static 'home/svg/x.svg' %}" class="x_default" width="12%" alt="">
+                      <img src="{% static 'home/svg/x_hover.svg' %}" class="x_hover" width="12%" alt="">
+                  </a>
+                </td>
+            </tr>
           {% else %}
           <tr>
             <th colspan="6" style="text-align:center">No Current track</th>

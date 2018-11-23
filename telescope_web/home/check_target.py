@@ -56,7 +56,7 @@ class Vars(Queue):
 OVST = Vars()
 
 
-def check_target(OVST, tar,tmstmp=None, check=True):
+def check_target(OVST, tar, tmstmp=None, check=True):
     azel = []
     if isinstance(tar, str):
         target = OVST.catalogue[tar]
@@ -66,6 +66,14 @@ def check_target(OVST, tar,tmstmp=None, check=True):
     if not target:
         raise ValueError("Target not in Catalogue")
         return
+
+    if tmstmp and len(tmstmp) == 5:
+        tmstmp += ':00'
+
+    if tmstmp and len(tmstmp) == 8:
+        print len(tmstmp)
+        tmstmp = str(datetime.now().date()) + ' ' + tmstmp
+
     for antenna in OVST.antennaList:
         ae = target.azel(timestamp=tmstmp, antenna=antenna)
         azel.append((rad2deg(ae[0]), rad2deg(ae[1])))
