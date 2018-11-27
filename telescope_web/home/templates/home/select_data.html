@@ -1,0 +1,159 @@
+{% extends 'home/layout.html' %}
+
+{% block content %}
+<form action="">
+<fieldset style="height:250px">
+  <legend>Combine Data</legend>
+  <div class="row mb-4">
+    <div class="col-6">
+    <h5>Select the datasets you want to add</h5>
+      <div id="directories">
+        <select name="dir" class="form-control mb-2" id="data-type" onchange="directory()" required>
+          <option value="" selected>Select directory...</option>
+          <option value="antenna_positions" id="select_pos_file">position data</option>
+          <option value="roachboard_readout" id="select_roach_file">roach data</option>
+        </select>
+      </div>
+      <div id="files">
+      <select name="file" class="form-control data-selection" id="antenna_positions" onchange="directory()" required>
+        <option value="" selected>Select h5 file...</option>
+        {% for pos in positions %}
+          <option value="{{ pos.0 }}">{{ pos.0 }}</option>
+        {% endfor %}
+      </select>
+      <select name="file" class="form-control data-selection" id="roachboard_readout" onchange="directory()" required>
+        <option value="" selected>Select h5 file...</option>
+        {% for roach in readouts %}
+          <option value="{{ roach.0 }}">{{ roach.0 }}</option>
+        {% endfor %}
+      </select>
+      </div>
+      <div id="dsets">
+        {% for pos in positions %}
+          <select name="dset" id="{{ pos.0 }}" class="form-control data-selection" required>
+            <option value="" selected>Select dataset...</option>
+            {% for dset in pos.1 %}
+              <option value="{{ dset }}">{{ dset }}</option>
+            {% endfor %}
+          </select>
+        {% endfor %}
+        {% for roach in readouts %}
+          <select name="dset" id="{{ roach.0 }}" class="form-control data-selection" required>
+            <option value="" selected>Select dataset...</option>
+            {% for dset in roach.1 %}
+              <option value="{{ dset }}">{{ dset }}</option>
+            {% endfor %}
+          </select>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-6">
+      <h5>Select the destination</h5>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          {% load static %}
+          <select name="" class="btn btn-outline-secondary select-append" id="select-dest" onchange="file_dest()" style="background-image:url({% static 'home/img/caret-bottom.png' %});">
+            <option value="new">New file</option>
+            <option value="ex">Existing file &nbsp;&nbsp;&nbsp;</option>
+          </select>
+        </div>
+          <input type="text" class="form-control new-or-ex" id="new" name="new-file" placeholder="*.h5" required>
+        <select name="ex-file" class="form-control new-or-ex data-selection" id="ex" required>
+          <option value="">Select existing File</option>
+          {% for file in existing %}
+          <option value="{{ file.0 }}">{{ file.0 }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <input type="submit" class="btn btn-outline-secondary float-right" name="submit_combine" value="Add data" style="vertical-align:bottom">
+      <br>
+    </div>
+  </div>
+</fieldset>
+</form>
+<div class="row">
+  <div class="col-6">
+
+  </div>
+  <div class="col-6">
+    <h5>Show combined files' datasets</h5>
+    <select name="" id="show-dsets" class="form-control" onchange="dset_modal()">
+      <option value="">Select file...</option>
+      {% for file in existing %}
+      <option value="{{ file.0 }}">{{ file.0 }}</option>
+      {% endfor %}
+    </select>
+    {% for file in existing %}
+    <div class="modal fade" id="{{ file.0 }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Datasets of {{ file.0 }}:</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-hover table-active">
+              <tbody>
+              {% for dset in file.1 %}
+              <tr>
+                <td>{{ dset }}</td>
+              </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <span class="text-secondary mr-auto align-middle">Total datasets: {{ file.1|length }}</span>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <span style="font-size:12px;" class="text-secondary">You can find your combined files on the telescope control server</span>
+
+  </div>
+</div>
+<script>
+  // Show the right files/datasets for the corresponding directories/file
+  function directory(){
+    var selected_dir = $('#data-type').find(":selected").attr('value');
+    if (selected_dir != ''){
+      var selected_file = $('#'+selected_dir).find(":selected").text();
+      $('#files').children().hide();
+      $('#files').children().attr('disabled', true);
+      $('#'+selected_dir).show();
+      $('#'+selected_dir).removeAttr('disabled');
+      $("#dsets").children().hide();
+      $("#dsets").children().attr('disabled', true);
+      $('[id="' + selected_file + '"]').show();
+      $('[id="' + selected_file + '"]').removeAttr('disabled');
+    }
+    else{
+      $('#files').children().hide();
+      $("#files").children().attr('disabled', true);
+      $("#dsets").children().hide();
+      $("#dsets").children().attr('disabled', true);
+    }
+  }
+
+  function file_dest(){
+    var selected_dir = $('#select-dest').find(":selected").attr('value');
+    $('.new-or-ex').hide();
+    $('.new-or-ex').attr('disabled', true);
+    $('#'+selected_dir).removeAttr('disabled');
+    $('#'+selected_dir).show();
+  }
+  directory();
+  file_dest();
+
+  // Show the corresponding modal containing dataset informations
+  function dset_modal(){
+    var file = $('#show-dsets').find(":selected").attr('value');
+    $('[id="' + file + '"]').modal('show')
+  }
+</script>
+{% endblock %}

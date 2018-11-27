@@ -4,33 +4,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
-from telescopecontrol.check_target import *
-from telescopecontrol.commands import *
-# from .check_target import *
-# from .commands import *
-from roachboard_readout import RoachReadout
+# from telescopecontrol.check_target import *
+# from telescopecontrol.commands import *
+from .data_selection import data_selection, submit_selection
+from .check_target import *
+from .commands import *
+# from roachboard_readout import RoachReadout
 from update_Status import update
+from requests import getvalue, return_message
 
 update(OVST, current_track)
 roach = RoachReadout('spectrum')
-
-def getvalue(request, name, val_type):
-    """
-        Converts the value of the html form element 'name' into 'val_type'
-    """
-    try:
-        return val_type(request.GET.get(name))
-    except:
-        return None
-
-def return_message(request, tag, message):
-    if tag == 'success':
-        messages.success(request, message)
-    elif tag == 'error':
-        messages.error(request, message)
-    else:
-        messages.info(request, message)
-
 
 def check_roach(request):
     ''' Checks if settings on the Roachboard Readout were done, applies it and starts the readout.
@@ -370,6 +354,19 @@ def change_password(request):
     return render(request, 'registration/change_password.html', {
         'form': form
     })
+
+@login_required()
+def select_data(request):
+    """
+    In this view you will be able to choose different datasets from different files and combine them into one hdf file
+    """
+    if request.GET.get('submit_combine'):
+        tag, message = submit_selection(request)
+        return_message(request, tag, message)
+        return redirect('/select_data')
+    context = data_selection(request)
+    return render(request, 'home/select_data.html', context)
+
 
 
 @login_required()

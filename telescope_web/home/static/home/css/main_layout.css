@@ -164,7 +164,7 @@ table.scroll tbody td, table.scroll thead th {
     width:60%
 }
 
-fieldset.line-track {
+fieldset{
     border: 1px groove #ddd !important;
     padding: 0 1.4em 1.4em 1.4em !important;
     margin: 0 0 1.5em 0 !important;
@@ -172,8 +172,28 @@ fieldset.line-track {
             box-shadow:  0px 0px 0px 0px #000;
 }
 
-legend.line-track {
+legend{
     width:inherit; /* Or auto */
     padding:0 10px; /* To give a bit of padding on the left and right */
     border-bottom:none;
+}
+
+.data-selection{
+    display:none;
+}
+
+.select-append{
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border-top-right-radius:0;
+    border-bottom-right-radius:0;
+    background-position: right;
+    padding-right:0.5em;
+    background-repeat: no-repeat;
+    background-origin: content-box;
+}
+
+.new-or-ex{
+    border-top-right-radius:.25rem !important;
+    border-bottom-right-radius:.25rem !important;
 }
