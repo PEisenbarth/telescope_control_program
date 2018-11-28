@@ -4,14 +4,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
-# from telescopecontrol.check_target import *
-# from telescopecontrol.commands import *
+from telescopecontrol.check_target import *
+from telescopecontrol.commands import *
+# from .check_target import *
+# from .commands import *
+from roachboard_readout import RoachReadout
 from .data_selection import data_selection, submit_selection
-from .check_target import *
-from .commands import *
-# from roachboard_readout import RoachReadout
 from update_Status import update
-from requests import getvalue, return_message
+from requests import getvalue_get, getvalue_post, return_message
 
 update(OVST, current_track)
 roach = RoachReadout('spectrum')
@@ -19,18 +19,18 @@ roach = RoachReadout('spectrum')
 def check_roach(request):
     ''' Checks if settings on the Roachboard Readout were done, applies it and starts the readout.
     '''
-    if request.GET.get('submit_start_readout') or request.GET.get('submit_start_power_readout'):
+    if request.POST.get('submit_start_readout') or request.POST.get('submit_start_power_readout'):
         if not roach.running:
-            if request.GET.get('submit_start_readout'):
+            if request.POST.get('submit_start_readout'):
                 roach.__init__('spectrum')    # Reinitialise to make sure to have default values
-            if request.GET.get('submit_start_power_readout'):
+            if request.POST.get('submit_start_power_readout'):
                 roach.__init__('power')
-            bof = getvalue(request, 'select_bof', int)
-            acc_len = getvalue(request, 'tbx_acc_len', eval)
-            xlim_min = getvalue(request, 'tbx_xlim_min', float)
-            xlim_max = getvalue(request, 'tbx_xlim_max', float)
-            ylim_min = getvalue(request, 'tbx_ylim_min', float)
-            ylim_max = getvalue(request, 'tbx_ylim_max', float)
+            bof = getvalue_post(request, 'select_bof', int)
+            acc_len = getvalue_post(request, 'tbx_acc_len', eval)
+            xlim_min = getvalue_post(request, 'tbx_xlim_min', float)
+            xlim_max = getvalue_post(request, 'tbx_xlim_max', float)
+            ylim_min = getvalue_post(request, 'tbx_ylim_min', float)
+            ylim_max = getvalue_post(request, 'tbx_ylim_max', float)
 
             if bof != None:
                 roach.bitstream = roach.boffiles[roach.mode][bof]
@@ -51,10 +51,10 @@ def check_roach(request):
             if ylim_max:
                 roach.plot_ylims[1] = ylim_max
 
-            if request.GET.get('cbx_save_roach'):
+            if request.POST.get('cbx_save_roach'):
                 roach.save = True
                 print 'Saving data'
-                filename = getvalue(request, 'tbx_filename', str)
+                filename = getvalue_post(request, 'tbx_filename', str)
                 if filename:
                     if not filename.endswith('.h5'):
                         filename += '.h5'
@@ -62,7 +62,23 @@ def check_roach(request):
             threading.Thread(target=roach.run).start()
             time.sleep(2)   # Give some time to let the server connect to the roachboard
 
-    if request.GET.get('submit_stop_readout'):
+    if request.POST.get('submit_change_lims'):
+        # Interactively change plot limits during readout
+        xlim_min = getvalue_post(request, 'tbx_xlim_min', float)
+        xlim_max = getvalue_post(request, 'tbx_xlim_max', float)
+        ylim_min = getvalue_post(request, 'tbx_ylim_min', float)
+        ylim_max = getvalue_post(request, 'tbx_ylim_max', float)
+
+        # Check which limit got changed. If it wasn't changed take the old value
+        xlim_min = xlim_min if xlim_min else roach.plot_xlims[0]
+        xlim_max = xlim_max if xlim_max else roach.plot_xlims[1]
+        ylim_min = ylim_min if ylim_min else roach.plot_ylims[0]
+        ylim_max = ylim_max if ylim_max else roach.plot_ylims[1]
+        roach.plot_xlims = [xlim_min, xlim_max]
+        roach.plot_ylims = [ylim_min, ylim_max]
+        print 'plot limits:' % roach.plot_ylims
+
+    if request.POST.get('submit_stop_readout'):
         roach.running = False
         while roach.save:   # Wait until Data is saved
             time.sleep(1)
@@ -73,8 +89,8 @@ def check_roach(request):
                       'acc_len':    roach.acc_len,
                       'gain':       roach.gain,
                       'connected':  roach.fpga.is_connected() if roach.fpga else None,
-                      'plot_min':   roach.plot_xlims[0],
-                      'plot_max':   roach.plot_xlims[1],
+                      'plot_xlim':   roach.plot_xlims,
+                      'plot_ylim':   roach.plot_ylims,
                       'save_data':  roach.save,
                       'filename':   roach.filename
                       }
@@ -97,26 +113,26 @@ def tracks(request):  # TODO
     context = check_roach(request)
     do_track = False
     try:
-        select = getvalue(request, 'select_target', str)
+        select = getvalue_get(request, 'select_target', str)
         if select:
             if select == 'target':
-                target = getvalue(request, 'target', str)
+                target = getvalue_get(request, 'target', str)
             if select == 'radec':
-                ra = getvalue(request, 'ra', str)
-                dec = getvalue(request, 'dec', str)
+                ra = getvalue_get(request, 'ra', str)
+                dec = getvalue_get(request, 'dec', str)
                 target = ('radec, %s, %s' % (ra, dec))
             if select == 'azel':
-                az = getvalue(request, 'az', str)
-                el = getvalue(request, 'el', str)
+                az = getvalue_get(request, 'az', str)
+                el = getvalue_get(request, 'el', str)
                 target = ('azel, %s, %s' % (az, el))
             if select == 'gal':
-                gal_long = getvalue(request, 'gal_long', float)
-                gal_lat = getvalue(request, 'gal_lat', float)
+                gal_long = getvalue_get(request, 'gal_long', float)
+                gal_lat = getvalue_get(request, 'gal_lat', float)
                 if gal_long == None:
-                    gal_long = getvalue(request, 'gal_long', str)
+                    gal_long = getvalue_get(request, 'gal_long', str)
                     gal_long = dms2dd(gal_long)
                 if gal_lat == None:
-                    gal_lat = getvalue(request, 'gal_lat', str)
+                    gal_lat = getvalue_get(request, 'gal_lat', str)
                     gal_lat = dms2dd(gal_lat)
                 target = ('gal, %s, %s' % (gal_long, gal_lat))
         duration = int(request.GET.get('duration'))
@@ -141,31 +157,31 @@ def tracks(request):  # TODO
         print 'Doing Cross'
 
     if request.GET.get('submit_lissajous'):
-        lissajous_dict = {  'az_frame': getvalue(request, 'az_frame_lissajous', float),
-                            'el_frame': getvalue(request, 'el_frame_lissajous', float),
-                            'omegaAz': getvalue(request, 'az_omega', float),
-                            'omegaEl': getvalue(request, 'el_omega', float),
-                            'phiAz': getvalue(request, 'az_phi', float),
-                            'phiEl': getvalue(request, 'el_phi', float)
+        lissajous_dict = {  'az_frame': getvalue_get(request, 'az_frame_lissajous', float),
+                            'el_frame': getvalue_get(request, 'el_frame_lissajous', float),
+                            'omegaAz': getvalue_get(request, 'az_omega', float),
+                            'omegaEl': getvalue_get(request, 'el_omega', float),
+                            'phiAz': getvalue_get(request, 'az_phi', float),
+                            'phiEl': getvalue_get(request, 'el_phi', float)
                             }
         mode = mapping('Lissajous', **lissajous_dict)
 
     if request.GET.get('submit_pong'):
-        pong_dict = {   'az_frame':     getvalue(request, 'az_frame_pong', float),
-                        'el_frame':     getvalue(request, 'el_frame_pong', float),
-                        'startAz':      getvalue(request, 'az_start', float),
-                        'startEl':      getvalue(request, 'el_start', float),
-                        'startAngle':   getvalue(request, 'start_angle', float),
-                        'velocity':     getvalue(request, 'velocity', float)
+        pong_dict = {   'az_frame':     getvalue_get(request, 'az_frame_pong', float),
+                        'el_frame':     getvalue_get(request, 'el_frame_pong', float),
+                        'startAz':      getvalue_get(request, 'az_start', float),
+                        'startEl':      getvalue_get(request, 'el_start', float),
+                        'startAngle':   getvalue_get(request, 'start_angle', float),
+                        'velocity':     getvalue_get(request, 'velocity', float)
         }
         mode = mapping('Pong', **pong_dict)
 
     if request.GET.get('submit_raster'):
         raster_dict ={
-            'az_frame':             getvalue(request, 'az_frame_raster', float),
-            'el_frame':             getvalue(request, 'el_frame_raster', float),
-            'rasterLines':          getvalue(request, 'rasterLines', int),
-            'firstAz':              getvalue(request, 'first', bool),
+            'az_frame':             getvalue_get(request, 'az_frame_raster', float),
+            'el_frame':             getvalue_get(request, 'el_frame_raster', float),
+            'rasterLines':          getvalue_get(request, 'rasterLines', int),
+            'firstAz':              getvalue_get(request, 'first', bool),
             'observationDuration':  duration
             }
         mode = mapping('Raster', **raster_dict)
@@ -211,7 +227,7 @@ def tracks(request):  # TODO
 
     if request.GET.get('check_target'):
         target = str(request.GET.get('check_target_tbx'))
-        tmsp = getvalue(request, 'check_tmsp_tbx', str)
+        tmsp = getvalue_get(request, 'check_tmsp_tbx', str)
         if len(tmsp) == 5:
             tmsp += ':00'
         if tmsp == '':
@@ -267,8 +283,8 @@ def pointing(request):
         return redirect('/pointing')
 
     if request.GET.get('movegal'):
-        gal_long = getvalue(request, 'gal_long', str)
-        gal_lat = getvalue(request, 'gal_lat', str)
+        gal_long = getvalue_get(request, 'gal_long', str)
+        gal_lat = getvalue_get(request, 'gal_lat', str)
         message = move_galactic(gal_long, gal_lat)
         return redirect('/pointing')
 
@@ -319,7 +335,7 @@ def tel_settings(request):
             messages.success(request, 'Telescopes halt cleared!')
 
     if request.GET.get('modbus_connection'):
-        mod = getvalue(request, 'modbus_connection', str)
+        mod = getvalue_get(request, 'modbus_connection', str)
         if mod == 'open':
             OVST.openModbusConnections()
         else:
@@ -360,11 +376,12 @@ def select_data(request):
     """
     In this view you will be able to choose different datasets from different files and combine them into one hdf file
     """
-    if request.GET.get('submit_combine'):
+    context = check_roach(request)
+    if request.POST.get('submit_combine'):
         tag, message = submit_selection(request)
         return_message(request, tag, message)
         return redirect('/select_data')
-    context = data_selection(request)
+    context.update(data_selection(request))
     return render(request, 'home/select_data.html', context)
 
 

@@ -64,7 +64,7 @@ class RoachReadout():
         self.old_acc_n = 0
         self.running = False # As long as readout is true, the data gets plotted
         self.plot_xlims = [13750, 13800]
-        self.plot_ylims = [-84, -83]
+        self.plot_ylims = None
         self.ADC_correction = 1.28
         self.data = []
         self.directory = '/home/telescopecontrol/philippe/DAQ/roachboard_readout/'
@@ -95,41 +95,39 @@ class RoachReadout():
                 linfloat[j] = 0.0000001
             dBmfloat[j] = 10 * math.log10(linfloat[j])
 
-        Power = numpy.sum(linfloat) #/numpy.float64(32768)
-        if Power == 0:
-            Power = 0.0000001
-        print "Power in dBm: %s " % (10 * math.log10(Power))
         if self.save and acc_n != self.old_acc_n and acc_n > 2:
             # add tmsp at index 0 to the spectrum
-            d = numpy.insert(dBmfloat[self.plot_xlims[0]:self.plot_xlims[1]], 0, tmsp)
+            d = numpy.insert(dBmfloat[self.save_limits[0]:self.save_limits[1]], 0, tmsp)
             self.data.append(d)
 
         return acc_n, dBmfloat, tmsp
 
     def plot_spectrum(self):
+        if not self.plot_ylims:
+            self.plot_ylims = [-84, -83]
         self.fig = plt.figure(figsize=((7,5)))
         self.ax = self.fig.add_subplot(1,1,1)
+        self.save_limits = self.plot_xlims
         while self.running:
             acc_n, interleave_a, tmsp = self.get_spectrum()
             if acc_n != self.old_acc_n: #Draw plot only when acc_n has changed
-                print 'acc_n %s' % acc_n
                 plt.clf()
                 plt.plot(interleave_a)
                 # plt.semilogy(interleave_a)
                 plt.title('Integration number %i.'%acc_n)
                 plt.ylabel('Power (dBm)')
-                plt.ylim()
                 plt.ylim(self.plot_ylims[0],self.plot_ylims[1])
+                plt.xlim(self.plot_xlims[0], self.plot_xlims[1])
                 plt.grid(True)
                 plt.xlabel('Channel')
                 # plt.xlim(0, 16384)
-                plt.xlim(self.plot_xlims[0], self.plot_xlims[1])
                 plt.plot((13776, 13776), (self.plot_ylims[0], self.plot_ylims[1]), 'k', linewidth=2.0)
                 plt.savefig('/home/telescopecontrol/philippe/telescope_control/telescope_web/home/templates/home/roach_plot.html',
                             format='svg')
                 # mpld3.save_html(self.fig,
                 #                 '/home/telescopecontrol/philippe/telescope_control/telescope_web/home/templates/home/roach_plot.html')
                 self.old_acc_n = acc_n
+                self.fig.clear()
             time.sleep(0.5)
 
     def get_power(self):
@@ -138,7 +136,6 @@ class RoachReadout():
         while acc_n == self.old_acc_n:
             acc_n = self.fpga.read_uint('acc_cnt')
             if acc_n != self.old_acc_n:
-                print 'acc_ns', acc_n, self.old_acc_n
                 a_0=struct.unpack('>8192l',self.fpga.read('even',8192*4,0))
                 a_1=struct.unpack('>8192l',self.fpga.read('odd',8192*4,0))
                 tmsp = time.time()
@@ -158,11 +155,10 @@ class RoachReadout():
                         linfloat[j] = 0.0000001
 
 
-                lin_sum = sum(linfloat[self.plot_xlims[0]:self.plot_ylims[1]])
+                lin_sum = sum(linfloat[self.plot_xlims[0]:self.plot_xlims[1]])
                 if lin_sum == 0:
                     lin_sum = 0.0000001
                 dBm_sum = (10 * math.log10(lin_sum))
-                print '%s mW, %s dBm' % (lin_sum, dBm_sum)
                 if self.save and acc_n > 2:
                     d = numpy.insert(dBmfloat[self.plot_xlims[0]:self.plot_xlims[1]], 0, tmsp)
                     self.data.append(d)
@@ -174,19 +170,21 @@ class RoachReadout():
     def plot_power(self):
         self.fig = plt.figure(figsize=((7,5)))
         self.ax = self.fig.add_subplot(1,1,1)
+        if self.plot_ylims:
+            plt.ylim(self.plot_ylims)
         total_power = []
         while self.running:
             acc_n, power, tmsp = self.get_power()
             if acc_n != self.old_acc_n: #Draw plot only when acc_n has changed
                 total_power.append(power)
-                print 'acc_n %s' % acc_n
                 plt.plot(total_power, '-b')
-                plt.title('Integration number %s ' % acc_n)
+                plt.title('Data points %s ' % acc_n)
                 plt.xlabel('Channel')
                 plt.ylabel('Power (dBm)')
                 plt.grid(True)
                 plt.savefig('/home/telescopecontrol/philippe/telescope_control/telescope_web/home/templates/home/roach_plot.html',
                             format='svg')
+                self.fig.clear()
                 # mpld3.save_html(self.fig,
                 #                 '/home/telescopecontrol/philippe/telescope_control/telescope_web/home/templates/home/roach_plot.html')
                 self.old_acc_n = acc_n

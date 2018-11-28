@@ -1,11 +1,38 @@
 {% extends 'home/layout.html' %}
 
 {% block content %}
-<form action="">
-<fieldset style="height:250px">
+<form action="" method="post">
+{% csrf_token %}
+<fieldset class="mb-4" style="min-height:290px">
   <legend>Combine Data</legend>
+<div class="row">
+  <div class="col">
+    {% load static %}
+    <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Combine data</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>With this function you can combine datasets from different h5 files (position files and roachboard readout files) and combine them
+            into one single .h5 file. <br>
+            Just choose the datasets and the destination file.</p>
+            <p>The combined files can be found on the telescope control server at "/home/telescopecontrol/philippe/DAQ/combined_files".</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
   <div class="row mb-4">
-    <div class="col-6">
+    <div class="col-md-6">
     <h5>Select the datasets you want to add</h5>
       <div id="directories">
         <select name="dir" class="form-control mb-2" id="data-type" onchange="directory()" required>
@@ -30,16 +57,16 @@
       </div>
       <div id="dsets">
         {% for pos in positions %}
-          <select name="dset" id="{{ pos.0 }}" class="form-control data-selection" required>
-            <option value="" selected>Select dataset...</option>
+          <select multiple name="dset" id="{{ pos.0 }}" class="form-control data-selection" required style="height:50%">
+            <optgroup label="Select datasets..."></optgroup>
             {% for dset in pos.1 %}
               <option value="{{ dset }}">{{ dset }}</option>
             {% endfor %}
           </select>
         {% endfor %}
         {% for roach in readouts %}
-          <select name="dset" id="{{ roach.0 }}" class="form-control data-selection" required>
-            <option value="" selected>Select dataset...</option>
+          <select multiple name="dset" id="{{ roach.0 }}" class="form-control data-selection" required>
+            <optgroup label="Select datasets..."></optgroup>
             {% for dset in roach.1 %}
               <option value="{{ dset }}">{{ dset }}</option>
             {% endfor %}
@@ -47,8 +74,11 @@
         {% endfor %}
       </div>
     </div>
-    <div class="col-6">
-      <h5>Select the destination</h5>
+    <div class="col-md-6">
+      <h5>
+        Select the destination
+        <a href="" data-toggle="modal" data-target="#infoModal"><img src="{% static 'home/img/info.png' %}" alt="info icon" width="6%" style="float:right"></a>
+      </h5>
       <div class="input-group mb-3">
         <div class="input-group-prepend">
           {% load static %}
@@ -113,8 +143,6 @@
       </div>
     </div>
     {% endfor %}
-    <span style="font-size:12px;" class="text-secondary">You can find your combined files on the telescope control server</span>
-
   </div>
 </div>
 <script>
