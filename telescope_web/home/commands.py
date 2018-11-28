@@ -85,7 +85,9 @@ class RoachReadout():
         self.fpga = None
         self.old_acc_n = None
         self.running = False # As long as readout is true, the data gets plotted
-        self.plot_lims = [13750, 13800]
+        self.plot_xlims = [13750, 13800]
+        self.plot_ylims = [13750, 13800]
+        self.filename = None
 
 
 roach = RoachReadout('spectrum')
