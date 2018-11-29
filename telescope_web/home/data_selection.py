@@ -45,17 +45,36 @@ def submit_selection(request):
         directory = getvalue_post(request, 'dir', str)
         data_file = getvalue_post(request, 'file', str)
         data_set = request.POST.getlist('dset')
+        data_set = map(str, data_set)
         dest_file = getvalue_post(request, 'new-file', str)
+        if '<' in dest_file or '>' in dest_file:    # Avoid the ability to pass html tags into filename
+            raise ValueError("destination file mustn't contain '<' or '>'")
         if not dest_file or dest_file == 'None':
             dest_file = getvalue_post(request, 'ex-file', str)
         if not dest_file.endswith('.h5'):
             dest_file += '.h5'
         hdf_source = h5py.File(os.path.join(DAQ_path, directory, data_file))
         hdf_dest = h5py.File(os.path.join(DAQ_path, 'combined_files', dest_file), 'a')
+        in_dest = []
+        not_in_dest = []
         for dset in data_set:
-            hdf_source.copy(dset, hdf_dest)
+            try:
+                hdf_source.copy(dset, hdf_dest)
+                not_in_dest.append(dset)
+            except:
+                in_dest.append(dset)
         hdf_dest.close()
         hdf_source.close()
-        return ('success', "copied '%s' to '%s'" % (data_set, dest_file))
+        message = ''
+        if len(not_in_dest):
+            message += "copied '" + "', '".join(not_in_dest) +  "' to '%s' <br>" %  dest_file
+            tag = 'success'
+        if len(in_dest):
+            message += "'" + "', '".join(in_dest) +  "' already exist in '%s'" % dest_file
+            tag = 'error'
+        if len(not_in_dest) and len(in_dest):
+            tag = 'info'
+
+        return (tag, message)
     except Exception, e:
         return ('error', e)

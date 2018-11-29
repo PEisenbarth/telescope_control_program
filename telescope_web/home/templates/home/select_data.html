@@ -18,7 +18,7 @@
             </button>
           </div>
           <div class="modal-body">
-            <p>With this function you can combine datasets from different h5 files (position files and roachboard readout files) and combine them
+            <p>With this function you can select datasets from different h5 files (position files and roachboard readout files) and combine them
             into one single .h5 file. <br>
             Just choose the datasets and the destination file.</p>
             <p>The combined files can be found on the telescope control server at "/home/telescopecontrol/philippe/DAQ/combined_files".</p>
@@ -109,10 +109,14 @@
   <div class="col-6">
     <h5>Show combined files' datasets</h5>
     <select name="" id="show-dsets" class="form-control" onchange="dset_modal()">
-      <option value="">Select file...</option>
-      {% for file in existing %}
-      <option value="{{ file.0 }}">{{ file.0 }}</option>
-      {% endfor %}
+      {% if  existing %}
+        <option value="">Select file...</option>
+        {% for file in existing %}
+          <option value="{{ file.0 }}">{{ file.0 }}</option>
+        {% endfor %}
+      {% else %}
+      <option value="" selected>No combined files existing</option>
+      {% endif %}
     </select>
     {% for file in existing %}
     <div class="modal fade" id="{{ file.0 }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -137,6 +141,10 @@
           </div>
           <div class="modal-footer">
             <span class="text-secondary mr-auto align-middle">Total datasets: {{ file.1|length }}</span>
+            <form action="" method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger" name="delete" value="{{ file.0 }}">Delete</button>
+            </form>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
         </div>

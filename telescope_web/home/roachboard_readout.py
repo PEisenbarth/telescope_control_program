@@ -178,6 +178,8 @@ class RoachReadout():
             if acc_n != self.old_acc_n: #Draw plot only when acc_n has changed
                 total_power.append(power)
                 plt.plot(total_power, '-b')
+                if self.plot_ylims:
+                    plt.ylim(self.plot_ylims)
                 plt.title('Data points %s ' % acc_n)
                 plt.xlabel('Channel')
                 plt.ylabel('Power (dBm)')

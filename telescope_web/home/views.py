@@ -68,7 +68,6 @@ def check_roach(request):
         xlim_max = getvalue_post(request, 'tbx_xlim_max', float)
         ylim_min = getvalue_post(request, 'tbx_ylim_min', float)
         ylim_max = getvalue_post(request, 'tbx_ylim_max', float)
-
         # Check which limit got changed. If it wasn't changed take the old value
         xlim_min = xlim_min if xlim_min else roach.plot_xlims[0]
         xlim_max = xlim_max if xlim_max else roach.plot_xlims[1]
@@ -76,7 +75,6 @@ def check_roach(request):
         ylim_max = ylim_max if ylim_max else roach.plot_ylims[1]
         roach.plot_xlims = [xlim_min, xlim_max]
         roach.plot_ylims = [ylim_min, ylim_max]
-        print 'plot limits:' % roach.plot_ylims
 
     if request.POST.get('submit_stop_readout'):
         roach.running = False
@@ -259,27 +257,24 @@ def pointing(request):
             az = float(request.GET.get('az'))
             el = float(request.GET.get('el'))
             move(az, el)
-            print 'moving to %f and %f' % (az, el)
         except:
-            print 'Please insert an integer'
+            pass
         return redirect('/pointing')
     if request.GET.get('moveradec'):
         try:
             ra = str(request.GET.get('ra'))
             dec = str(request.GET.get('dec'))
             move(ra, dec)
-            print 'moving to %s and %s' % (ra, dec)
         except:
-            print 'Please insert an integer'
+            pass
         return redirect('/pointing')
 
     if request.GET.get('movetarget'):
         try:
             target = str(request.GET.get('target'))
             move(target)
-            print 'moving to %s' % target
         except:
-            print 'Please insert an integer'
+            pass
         return redirect('/pointing')
 
     if request.GET.get('movegal'):
@@ -290,7 +285,6 @@ def pointing(request):
 
     if request.GET.get('home'):
         home()
-        print 'moving home'
         return redirect('/pointing')
     if request.GET.get('safety'):
         safety()
@@ -379,9 +373,14 @@ def select_data(request):
     context = check_roach(request)
     if request.POST.get('submit_combine'):
         tag, message = submit_selection(request)
-        return_message(request, tag, message)
+        return_message(request, tag, message, extra_tags='safe')
         return redirect('/select_data')
+    if request.POST.get('delete'):
+        datafile = getvalue_post(request, 'delete', str)
+        os.remove('/home/telescopecontrol/philippe/DAQ/combined_files/' + datafile)
+        return_message(request, 'warning', "'%s' removed!" % datafile)
     context.update(data_selection(request))
+
     return render(request, 'home/select_data.html', context)
 
 

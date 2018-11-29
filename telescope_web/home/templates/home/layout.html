@@ -56,11 +56,11 @@
                       <li class="nav-item {% if nbar == 'pointing' %}active{% endif %}">
                         <a class="nav-link" href="/pointing">Pointing</a>
                       </li>
-                      <li class="nav-item {% if nbar == 'tel_settings' %}active{% endif %}">
-                        <a class="nav-link" href="/tel_settings">Telescope Settings</a>
-                      </li>
                       <li class="nav-item {% if nbar == 'select_data' %}active{% endif %}">
                         <a class="nav-link" href="/select_data">Select data</a>
+                      </li>
+                      <li class="nav-item {% if nbar == 'tel_settings' %}active{% endif %}">
+                        <a class="nav-link" href="/tel_settings">Telescope Settings</a>
                       </li>
                     </ul>
                   </div>
@@ -70,7 +70,9 @@
                 <div class="col-12">
                   {% if messages %}
                     {% for message in messages %}
-                      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                      <div class="alert alert-{{ message.level_tag }}">
+                        {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}
+                      </div>
                     {% endfor %}
                   {% endif %}
                   {% block content %}
