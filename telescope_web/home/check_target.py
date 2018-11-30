@@ -8,6 +8,7 @@ from datetime import datetime
 #               150     -187    95      25
 #                       =173
 
+### Used for debugging issues ###
 
 class Vars(Queue):
     def __init__(self):

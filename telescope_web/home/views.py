@@ -232,12 +232,19 @@ def tracks(request):  # TODO
             tmsp = None
         try:
             azel = check_target(OVST, target, tmstmp=tmsp, check=False)
+            try:
+                check_target(OVST, target)
+                context['available'] = None
+            except:
+                available = check_available(OVST, target)
+                context['available'] = available
             azel = [[round(item[0], 4), round(item[1], 4)] for item in azel]
             for i, pos in enumerate(azel):
                 pos.insert(0, OVST.antennaList[i].name)  # Add the corresponding atnennaname to the positions
             context.update({'target_ok': target,
                             'azel': azel,
-                            'tmsp': tmsp})
+                            'tmsp': tmsp,
+                            })
         except ValueError:
             context.update({'target_error': '%s is not in Catalogue' % target})
         context.update({'checked': True})
@@ -377,7 +384,7 @@ def select_data(request):
         return redirect('/select_data')
     if request.POST.get('delete'):
         datafile = getvalue_post(request, 'delete', str)
-        os.remove('/home/telescopecontrol/philippe/DAQ/combined_files/' + datafile)
+        os.remove('/home/telescopecontrol/philippe/telescope_control/telescope_web/home/static/combined_files/' + datafile)
         return_message(request, 'warning', "'%s' removed!" % datafile)
     context.update(data_selection(request))
 

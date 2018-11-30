@@ -231,6 +231,9 @@
                   {% endfor %}
                   </tbody>
                 </table>
+                {% if available %}
+                  <span class="text-secondary">{{ available }}</span>
+                {% endif %}
               {% endif %}
             </div>
             <div class="modal-footer">

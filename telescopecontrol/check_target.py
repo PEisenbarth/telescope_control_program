@@ -37,6 +37,9 @@ def check_target(OVST, target, tmstmp=None, check=True):
         if tmstmp and len(tmstmp) == 8:
             tmstmp = str(datetime.now().date()) + ' ' + tmstmp
 
+    if isinstance(tmstmp, (int, float)):
+        tmstmp = Timestamp(tmstmp)
+
     if not tmstmp:
         tmstmp = Timestamp()
 
@@ -62,20 +65,17 @@ def check_available(OVST, targ):
     while not in_Range:
         try:
             if tmsp-time.time() > 60*60*24:     # stop if the target won't be in range the next 24h
-                print "%s won't be in range the next 24h" % targ
-                break
+                return "%s won't be in range the next 24h" % targ
             tmsp = time.time()+i*60
             i += 1
             azel = check_target(OVST, targ, tmstmp=tmsp)
             in_Range = True
         except ValueError:
-            print "Target '%s' not in Catalogue!" % targ
-            break
+            return "Target '%s' not in Catalogue!" % targ
         except LookupError:     # target can't be focused at this tmsp, repeat the loop
             pass
     if in_Range:
-        print 'In range on %s \tat position az: %.2f, el: %.2f' %(time.ctime(tmsp)[0:16], azel[0][0], azel[0][1])
-        return azel
+        return 'In range from %s \tat position az: %.2f, el: %.2f' %(time.ctime(tmsp)[4:16], azel[0][0], azel[0][1])
 
 def filter_catalogue(OVST):
     '''

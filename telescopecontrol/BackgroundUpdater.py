@@ -97,11 +97,29 @@ class SensorUpdateThread(threading.Thread):
 
                 self.lock.acquire()
                 self.OVST.sensorUpdaterList[i].set(Timestamp(),status,value)
-                self.lock.release()
-          
 
-        readFailCounter = 0
-        
+                self.lock.release()
+
+        if self.OVST.startup:
+            # Check at the startup the position of the telescopes and adjusts the rollovercounter to it
+            rollover = [0, 0]
+            n = 0
+            for i, sensor in enumerate(self.OVST.sensorList):
+                if i % 2 == 0 and sensor.read()[1] == 3:    # If the sensor is azimuth and has status 3 it has the wrong
+                    rollover[n] = -1                        # rollover counter -> change it
+                    n += 1
+            if any(r != 0 for r in rollover):
+                self.OVST.clearTelescopeFault(rollover)
+            pos = self.OVST.get_pos()
+            if all(i[1] - 0.5 <= 18.0 <= i[1] + 0.5 for i in pos) and all(  # Check if telescopes are in home position
+                                            i[2] - 0.5 <= 90.0 <= i[2] + 0.5 for i in pos):
+                print 'All telescopes in home position'
+                self.OVST.inHomePosition = True
+                self.OVST.inSafetyPosition = True
+            self.OVST.startup = False
+
+
+
 
     def elevationLengthToDegree(self, lengthparam, antennaSensor):
         '''Converts the elevation value from lenght in degrees 

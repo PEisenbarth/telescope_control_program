@@ -198,10 +198,6 @@ def quit_tel():
         home()
         while not OVST.inHomePosition:
             time.sleep(1)
-    else:
-        pass
-    with open(os.path.dirname(__file__)+'/Catalogues/.rollover', 'w') as csv:
-        csv.write('Shutdown: properly')
     OVST.closeAllModbusConnections()
     print('\n\nTelescope telescopecontrol program exited.')
     os._exit(0)

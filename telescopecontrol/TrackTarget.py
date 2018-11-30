@@ -178,6 +178,7 @@ class TrackTarget:
                     else:
                         self.current_track = [targetname, observationDuration, 'Moving to start', self.mode.mode]
                     self.OVST.move_to_pos(self.targetname, for_track=True, azel_off=azel_off)
+                    self.OVST.move_to_pos(self.targetname, for_track=True, azel_off=azel_off)
                     if goOffAzEl:
                         self.current_track = [targetname, observationDuration, Timestamp().to_string(), 'Cross']
                     else:
@@ -221,7 +222,7 @@ class TrackTarget:
                             })
 
                         if isinstance(self.targetname, str):
-                            qth = threading.Thread(target=self.OVST.daq_pos, args=(self.targetname, daq_attrs))
+                            qth = threading.Thread(target=self.OVST.daq_pos, args=(self.targetname + '_' + Timestamp().local()[11:19], daq_attrs))
                         else:
                             qth = threading.Thread(target=self.OVST.daq_pos, args=(None, daq_attrs))
                         qth.start()

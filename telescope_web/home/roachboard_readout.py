@@ -133,15 +133,16 @@ class RoachReadout():
     def get_power(self):
         # get the data...
         acc_n = self.fpga.read_uint('acc_cnt')
-        while acc_n == self.old_acc_n:
+        dBm_sum = None
+        tmsp = None
+        while acc_n == self.old_acc_n or acc_n < 2:
             acc_n = self.fpga.read_uint('acc_cnt')
-            if acc_n != self.old_acc_n:
+            if acc_n != self.old_acc_n and acc_n > 1:
                 a_0=struct.unpack('>8192l',self.fpga.read('even',8192*4,0))
                 a_1=struct.unpack('>8192l',self.fpga.read('odd',8192*4,0))
                 tmsp = time.time()
                 interleave_a=[]
                 linfloat = numpy.zeros(shape=(16384), dtype=float)
-                dBmfloat = numpy.zeros(shape=(16384), dtype=float)
 
                 for i in range(8192):
                     interleave_a.append(a_0[i])
@@ -155,32 +156,34 @@ class RoachReadout():
                         linfloat[j] = 0.0000001
 
 
-                lin_sum = sum(linfloat[self.plot_xlims[0]:self.plot_xlims[1]])
+                lin_sum = numpy.sum(linfloat[self.plot_xlims[0]:self.plot_xlims[1]])
                 if lin_sum == 0:
                     lin_sum = 0.0000001
                 dBm_sum = (10 * math.log10(lin_sum))
                 if self.save and acc_n > 2:
-                    d = numpy.insert(dBmfloat[self.plot_xlims[0]:self.plot_xlims[1]], 0, tmsp)
-                    self.data.append(d)
+                    self.data.append([tmsp, dBm_sum])
             else:
-                time.sleep(1)
+                time.sleep(0.5)
 
         return acc_n, dBm_sum, tmsp
 
     def plot_power(self):
         self.fig = plt.figure(figsize=((7,5)))
         self.ax = self.fig.add_subplot(1,1,1)
-        if self.plot_ylims:
+        if not self.plot_ylims:
+            self.plot_ylims = [-67, -66]
             plt.ylim(self.plot_ylims)
         total_power = []
         while self.running:
             acc_n, power, tmsp = self.get_power()
             if acc_n != self.old_acc_n: #Draw plot only when acc_n has changed
                 total_power.append(power)
+                if len(total_power) > 300:
+                    total_power.pop(0)
                 plt.plot(total_power, '-b')
                 if self.plot_ylims:
                     plt.ylim(self.plot_ylims)
-                plt.title('Data points %s ' % acc_n)
+                plt.title('Data points %s ' % (acc_n-1))
                 plt.xlabel('Channel')
                 plt.ylabel('Power (dBm)')
                 plt.grid(True)

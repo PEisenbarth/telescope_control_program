@@ -21,7 +21,7 @@
             <p>With this function you can select datasets from different h5 files (position files and roachboard readout files) and combine them
             into one single .h5 file. <br>
             Just choose the datasets and the destination file.</p>
-            <p>The combined files can be found on the telescope control server at "/home/telescopecontrol/philippe/DAQ/combined_files".</p>
+            <p>The file can then be downloaded by selecting it and choosing 'download' in the popup window</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -107,7 +107,7 @@
 
   </div>
   <div class="col-6">
-    <h5>Show combined files' datasets</h5>
+    <h5>Show/Download combined files</h5>
     <select name="" id="show-dsets" class="form-control" onchange="dset_modal()">
       {% if  existing %}
         <option value="">Select file...</option>
@@ -115,7 +115,7 @@
           <option value="{{ file.0 }}">{{ file.0 }}</option>
         {% endfor %}
       {% else %}
-      <option value="" selected>No combined files existing</option>
+      <option value="" selected>No existing combined files</option>
       {% endif %}
     </select>
     {% for file in existing %}
@@ -141,6 +141,7 @@
           </div>
           <div class="modal-footer">
             <span class="text-secondary mr-auto align-middle">Total datasets: {{ file.1|length }}</span>
+            <a href="{{ 'static/combined_files/'|add:file.0 }}" class="btn btn-primary">Download</a>
             <form action="" method="post">
               {% csrf_token %}
               <button type="submit" class="btn btn-danger" name="delete" value="{{ file.0 }}">Delete</button>

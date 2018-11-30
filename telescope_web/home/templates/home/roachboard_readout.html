@@ -155,8 +155,8 @@
               <div class="input-group-prepend">
                 <div class="input-group-text">Plot limits (y)</div>
               </div>
-              <input type="number" step="0.01" class="form-control" name="tbx_ylim_min" {% if roach.running %} {% if roach.mode == 'spectrum' %} disabled {% endif %} placeholder="{{ roach.plot_ylim.0 }}" {% else %} placeholder="Min default: auto" {% endif %}>
-              <input type="number" step="0.01" class="form-control" name="tbx_ylim_max" {% if roach.running %} {% if roach.mode == 'spectrum' %} disabled {% endif %} placeholder="{{ roach.plot_ylim.1 }}" {% else %} placeholder="Max default: auto" {% endif %}>
+              <input type="number" step="0.01" class="form-control" name="tbx_ylim_min" {% if roach.running %} {% if roach.mode == 'spectrum' %} disabled {% endif %} placeholder="{{ roach.plot_ylim.0 }}" {% else %} placeholder="Min default: -67" {% endif %}>
+              <input type="number" step="0.01" class="form-control" name="tbx_ylim_max" {% if roach.running %} {% if roach.mode == 'spectrum' %} disabled {% endif %} placeholder="{{ roach.plot_ylim.1 }}" {% else %} placeholder="Max default: -66" {% endif %}>
             </div>
           {% if roach.running %}
             <input type="submit" class="btn btn-outline-secondary" name="submit_change_lims" value="Change plot limits">

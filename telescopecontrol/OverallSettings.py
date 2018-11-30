@@ -83,6 +83,7 @@ class OverallSettings(object):
         self.PDPList = []
         self.cataloguesToTrack = []
         self.cataloguesTracked = []
+        self.active_antennas = []
         self.currentTrack = None
         self.currentCatalogue = None
         self.error = False
@@ -91,22 +92,11 @@ class OverallSettings(object):
         self.halt = False                   # halt moveSavetyPosition or moveHomePosition
         self.haltMoveSavetyHome = False
         self.inSafetyPosition =False
-        self.active_antennas = []
+        self.inHomePosition = False
+        self.startup = True     # Indicates that program was initialized -> checks rollover counter and sets it
+
         # Create Catalogue
         self.Catalogue = Catalogue(add_specials=True, add_stars=True)
-
-
-
-        @property
-        def antennaDict(self):
-            ''' A property which generates form the antenna list a antenna dict.
-            It is necessary for katcp communication to work with a dict.
-            '''
-            global antennaList
-            _antennaDict = {}
-            for i in range(len(antennaList)):
-                _antennaDict[antennaList[i].name] = antennaList[i]
-            return _antennaDict
 
         # does not belong to the class to avoid confusion with self
         _sensorClassModification()
@@ -133,33 +123,19 @@ class OverallSettings(object):
         self.in_range = None
         threading.Thread(target=self.check_in_range, args=(True,)).start()
 
-
 ##### Telescope specific settings #####
 
     def rollover_startup(self):
         """ 
-        Checks if the program was closed normally
+        Sets the rollover counter to 0. If rollover counter != 0 it will get changed in 'BackgroundUpdater'
         """
-        rollover_file = os.path.dirname(__file__)+'/Catalogues/.rollover'
-        try:
-            with open(rollover_file, 'r') as csv:
-                if csv.read() == 'Shutdown: properly':  # Program got exited with quit() or exit() in the last session
-                    for i in range(len(self.sensorList)):
-                        self.sensorList[i].raiseStatus = 3 # 'error'
-                        if self.sensorList[i].isAzimuth:
-                            self.sensorList[i].rolloverCounter = 0
-                    os.remove(rollover_file)
-                    self.inSafetyPosition = True
-                    self.inHomePosition = True
-                else:
-                    os.remove(rollover_file)
-                    raise ValueError
+        for i in range(len(self.sensorList)):
+            self.sensorList[i].raiseStatus = 3 # 'error'
+            if self.sensorList[i].isAzimuth:
+                self.sensorList[i].rolloverCounter = 0
 
-        except:     # Either no file exists(program was forced to exit) or file contains the wrong Value
-            print "\nTelescope telescopecontrol program wasn't shut down properly. Next time please use quit() or exit() " \
-                  "to close the program"
-            self.inHomePosition = False
-            self.askRolloverCounter()
+
+
 
     def askRolloverCounter(self, rollover=None):
         """This method ask the user for the current rollover position.
