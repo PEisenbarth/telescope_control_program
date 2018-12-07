@@ -30,18 +30,18 @@ class Vars(Queue):
         self.catalogue = Catalogue(add_specials=True, add_stars=True)
         print 'Initialising Catalogues...'
 
-        filedir = '/Users/eisenbarth/Desktop/telescope_control_repo/telescope_control_program/telescopecontrol'
+        filedir = os.path.dirname(__file__)
         #
         # # Hipparcos Catalogue
         # filename = os.path.join(filedir, 'Catalogues/hipparcos.edb')
         # self.catalogue.add_edb(file(filename))
         #
         # CBASS Catalogue
-        filename = os.path.join(filedir, 'Catalogues/CBASS_Catalogue.csv')
+        filename = filedir + '/Catalogues/CBASS_Catalogue.csv'
         self.catalogue.add(file(filename))
         #
         # # Messier Catalogue
-        filename = os.path.join(filedir, 'Catalogues/MESSIER.edb')
+        filename = filedir + '/Catalogues/MESSIER.edb'
         self.catalogue.add_edb(file(filename))
         self.update_time = None
         self.in_range = None
