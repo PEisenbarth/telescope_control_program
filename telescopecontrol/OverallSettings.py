@@ -533,6 +533,13 @@ class OverallSettings(object):
             for i, ant in enumerate(self.antennaList):
                 data_array = np.array(data_dict[ant], dtype=dtype)
                 dset = G.create_dataset('%s' % ant.name, data=data_array)
+                dset.attrs.update({
+                    'Antenna name':         ant.name,
+                    'Antenna latitude':     ant.observer.lat,
+                    'Antenna longitude':    ant.observer.long,
+                    'Antenna altitude':     ant.observer.elevation
+                })
+
                 if isinstance(daq_attrs, dict):
                     for key, val in daq_attrs.iteritems():
                         dset.attrs[key] = val

@@ -210,7 +210,7 @@ def tracks(request):  # TODO
                 pass
         return redirect('/track')
 
-    context ['nbar'] = 'track'
+    context['nbar'] = 'track'
     context['in_range'] = OVST.in_range
     context['update_time'] = OVST.update_time
     current = current_track()
