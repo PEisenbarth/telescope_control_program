@@ -90,6 +90,7 @@ def moveContinuousAdapter(OVST, targetname, tmSp=None, deltaTmSp=None,
         OVST.PCQ.writeTask(antennas[i].azimuthMoveAbsolutePositionRegister,
                            float(azimuthOffset(nextAzEl[i][0] + nextAzElOff[0], antennas[i].azElPos[0].offset)),
                            Timestamp())
+        print antennas[i].name, float(azimuthOffset(nextAzEl[i][0] + nextAzElOff[0], antennas[i].azElPos[0].offset))
         OVST.PCQ.writeTask(antennas[i].elevationMoveAbsolutePositionRegister, float(
             elevationDegreeToLength(nextAzEl[i][1] + nextAzElOff[1], antennas[i].azElPos[1].offset)), Timestamp())
 

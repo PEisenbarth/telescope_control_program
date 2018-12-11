@@ -5,7 +5,7 @@ import numpy as np
 import time
 import math
 import sqlite3
-from wetton_settings import modbus_ip, modbus_port
+from telescope_settings import modbus_ip, modbus_port
 
 class PythonDiagnosticProgramm():
 

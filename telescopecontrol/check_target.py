@@ -26,9 +26,8 @@ def check_target(OVST, target, tmstmp=None, check=True):
     elif isinstance(target, str) and ',' in target:       # Check if target has format: e.g. 'azel, 30, 60'
         target = Target(target)
     elif isinstance(target, str):
-        try:
-            target = catalogue[target]
-        except ValueError:
+        target = catalogue[target]
+        if not target:
             raise ValueError("Target not in Catalogue")
 
     if isinstance(tmstmp, str):

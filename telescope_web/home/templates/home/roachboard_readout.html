@@ -50,7 +50,7 @@
                 {% else %}
                 <option selected>Choose file...</option>
                 {% for bof in roach.boffiles.spectrum %}
-                <option value="{{ forloop.counter0 }}">{{ bof }}</option>
+                <option {% if forloop.counter0 > 0 %}disabled {% endif %} value="{{ forloop.counter0 }}">{{ bof }}</option>
                 {% endfor %}
                 {% endif %}
               </select>
@@ -115,7 +115,7 @@
                 {% else %}
                 <option selected>Choose file...</option>
                 {% for bof in roach.boffiles.power %}
-                <option value="{{ forloop.counter0 }}">{{ bof }}</option>
+                <option {% if forloop.counter0 > 0 %} disabled {% endif %}value="{{ forloop.counter0 }}">{{ bof }}</option>
                 {% endfor %}
                 {% endif %}
               </select>

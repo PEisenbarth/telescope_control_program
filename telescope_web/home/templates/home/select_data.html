@@ -190,7 +190,8 @@
   // Show the corresponding modal containing dataset informations
   function dset_modal(){
     var file = $('#show-dsets').find(":selected").attr('value');
-    $('[id="' + file + '"]').modal('show')
+    $('[id="' + file + '"]').modal('show');
+    $("#show-dsets").val('');
   }
 </script>
 {% endblock %}

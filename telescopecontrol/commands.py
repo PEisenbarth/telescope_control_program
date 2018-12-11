@@ -121,7 +121,7 @@ def pending_tracks():
         return None
     # Change the observationMode object to the observation mode name
     pending = list(trackq.track_Queue.queue)
-    pending_list = [pen[:5] for pen in pending]     # Only way i found to get the name of the Observation mode without
+    pending_list = [pen[:5] for pen in pending]     # Only way I found to get a list of the queue without
     for i, pen in enumerate(pending):               # call by Reference (without changing the attributes of track_Queue)
         if pen[5]:                                  # There is maybe a better way
             pending_list[i].append(pen[5].mode)

@@ -8,7 +8,7 @@ def update(OVST, current_track):
     the website
     """
     def html_div(text, div_class, color):
-        return ("<div class='%s' style='color:%s'>%s</div>" % (div_class, color, text))
+        return ("<div class='%s' style='color:%s; font-weight:bold;'>%s</div>" % (div_class, color, text))
 
     def update_thread():
         while True:
@@ -20,18 +20,20 @@ def update(OVST, current_track):
 
             pos = OVST.get_pos()
             div_list = []
-            for i in range(len(OVST.antennaList)):
+            n = 0
+            for i, ant in enumerate(OVST.antennaList):
                 current = current_track()
                 # Get status colors for positions
                 az_color = get_status_color(status_codes[6+2*i])
                 el_color = get_status_color(status_codes[7+2*i])
-                if current:
+                if current and ant in OVST.active_antennas:
                     # If there is currently a track, calculate the deviation from the target
                     target_pos = OVST.get_target_pos(current[0], check=False)
-                    az_off = target_pos[i][0] - pos[i][1]
-                    el_off = target_pos[i][1] - pos[i][2]
+                    az_off = target_pos[n][0] - pos[i][1]
+                    el_off = target_pos[n][1] - pos[i][2]
                     div_list.append(html_div('%.2f %+.2f' % (pos[i][1], az_off), 'az%i'%i, az_color))
                     div_list.append(html_div('%.2f %+.2f' % (pos[i][2], el_off), 'el%i'%i, el_color))
+                    n += 1
                 else:
                     div_list.append(html_div('%.2f' % pos[i][1], 'az%i'%i, az_color))
                     div_list.append(html_div('%.2f' % pos[i][2], 'el%i'%i, el_color))

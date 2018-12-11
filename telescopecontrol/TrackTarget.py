@@ -71,7 +71,7 @@ class TrackTarget:
                 if isinstance(check[1], str):
                     return ('error', check[1])
                 else:
-                    return ('error', "Can't track target without hitting a limit switch")
+                    return ('error', "Can't track '%s' without hitting a limit switch" % targetname)
 
     def _tracking_thread(self):
         '''     this takes one item(target) of :Queue: track_Queue and tracks it. This gets repeated until the Queue is
@@ -178,7 +178,8 @@ class TrackTarget:
                     else:
                         self.current_track = [targetname, observationDuration, 'Moving to start', self.mode.mode]
                     self.OVST.move_to_pos(self.targetname, for_track=True, azel_off=azel_off)
-                    self.OVST.move_to_pos(self.targetname, for_track=True, azel_off=azel_off)
+                    if not self.halt:
+                        self.OVST.move_to_pos(self.targetname, for_track=True, azel_off=azel_off)
                     if goOffAzEl:
                         self.current_track = [targetname, observationDuration, Timestamp().to_string(), 'Cross']
                     else:
@@ -222,7 +223,7 @@ class TrackTarget:
                             })
 
                         if isinstance(self.targetname, str):
-                            qth = threading.Thread(target=self.OVST.daq_pos, args=(self.targetname + '_' + Timestamp().local()[11:19], daq_attrs))
+                            qth = threading.Thread(target=self.OVST.daq_pos, args=(Timestamp().local()[11:19] + '_' + self.targetname, daq_attrs))
                         else:
                             qth = threading.Thread(target=self.OVST.daq_pos, args=(None, daq_attrs))
                         qth.start()

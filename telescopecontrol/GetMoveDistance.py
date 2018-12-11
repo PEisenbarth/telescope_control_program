@@ -61,7 +61,7 @@ def getMoveDistance(coordinate, antennaSensor,initialPos=None, trackTargetModifi
                     return 0.0
             else:
                 return moveDistance
-        # the limitiswitch will be hit by moving in positive direction
+        # the limitswitch will be hit by moving in positive direction
         elif coordinate>(antennaSensor.params[1]): # coordinate is higher than the max value
             #move negative if it is in range
             moveDistance = math.fmod(distance - 360, 360)

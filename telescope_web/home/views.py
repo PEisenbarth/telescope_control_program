@@ -27,8 +27,8 @@ def check_roach(request):
                 roach.__init__('power')
             bof = getvalue_post(request, 'select_bof', int)
             acc_len = getvalue_post(request, 'tbx_acc_len', eval)
-            xlim_min = getvalue_post(request, 'tbx_xlim_min', float)
-            xlim_max = getvalue_post(request, 'tbx_xlim_max', float)
+            xlim_min = getvalue_post(request, 'tbx_xlim_min', int)
+            xlim_max = getvalue_post(request, 'tbx_xlim_max', int)
             ylim_min = getvalue_post(request, 'tbx_ylim_min', float)
             ylim_max = getvalue_post(request, 'tbx_ylim_max', float)
 
@@ -42,13 +42,13 @@ def check_roach(request):
                     roach.gain = gain
             except:
                 pass
-            if xlim_min:
+            if xlim_min != None:
                 roach.plot_xlims[0] = xlim_min
-            if xlim_max:
+            if xlim_max != None:
                 roach.plot_xlims[1] = xlim_max
-            if ylim_min:
+            if ylim_min != None:
                 roach.plot_ylims[0] = ylim_min
-            if ylim_max:
+            if ylim_max != None:
                 roach.plot_ylims[1] = ylim_max
 
             if request.POST.get('cbx_save_roach'):
@@ -69,10 +69,10 @@ def check_roach(request):
         ylim_min = getvalue_post(request, 'tbx_ylim_min', float)
         ylim_max = getvalue_post(request, 'tbx_ylim_max', float)
         # Check which limit got changed. If it wasn't changed take the old value
-        xlim_min = xlim_min if xlim_min else roach.plot_xlims[0]
-        xlim_max = xlim_max if xlim_max else roach.plot_xlims[1]
-        ylim_min = ylim_min if ylim_min else roach.plot_ylims[0]
-        ylim_max = ylim_max if ylim_max else roach.plot_ylims[1]
+        xlim_min = xlim_min if xlim_min != None else roach.plot_xlims[0]
+        xlim_max = xlim_max if xlim_max != None else roach.plot_xlims[1]
+        ylim_min = ylim_min if ylim_min != None else roach.plot_ylims[0]
+        ylim_max = ylim_max if ylim_max != None else roach.plot_ylims[1]
         roach.plot_xlims = [xlim_min, xlim_max]
         roach.plot_ylims = [ylim_min, ylim_max]
 
@@ -235,7 +235,7 @@ def tracks(request):  # TODO
             try:
                 check_target(OVST, target)
                 context['available'] = None
-            except:
+            except LookupError:
                 available = check_available(OVST, target)
                 context['available'] = available
             azel = [[round(item[0], 4), round(item[1], 4)] for item in azel]
@@ -350,6 +350,7 @@ def tel_settings(request):
     context['halt'] = OVST.halt
     return render(request, 'home/tel_settings.html', context)
 
+@login_required()
 def lines(request):
     return render(request, 'home/lines.html')
 

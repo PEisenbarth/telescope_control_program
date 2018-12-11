@@ -5,7 +5,7 @@ from SensorClassModifications import _sensorClassModification
 from Window import WindowThread
 import time
 import os
-from wetton_settings import init_wetton_telescope
+from telescope_settings import init_wetton_telescope
 from movingAdapter import moveIncrementalAdapter
 from check_target import check_target, filter_catalogue, dms2dd
 import h5py
@@ -507,7 +507,7 @@ class OverallSettings(object):
 
         # If task is done, safe the data in an hdf5 file
         if not name:
-            new_name = 'positions_%s' % Timestamp().local()[11:19] # positions_HH:MM:SS
+            new_name = '%s_positions' % Timestamp().local()[11:19] # positions_HH:MM:SS
         else:
             new_name = name
         used = True
