@@ -63,7 +63,7 @@ class RoachReadout():
         self.fpga = None
         self.old_acc_n = 0
         self.running = False # As long as readout is true, the data gets plotted
-        self.plot_xlims = [13750, 13800]
+        self.plot_xlims = None
         self.plot_ylims = None
         self.ADC_correction = 1.28
         self.data = []
@@ -105,6 +105,8 @@ class RoachReadout():
     def plot_spectrum(self):
         if not self.plot_ylims:
             self.plot_ylims = [-84, -83]
+        if not self.plot_xlims:
+            self.plot_xlims = [13750, 13800]
         self.fig = plt.figure(figsize=((7,5)))
         self.ax = self.fig.add_subplot(1,1,1)
         self.save_limits = self.plot_xlims
@@ -171,8 +173,10 @@ class RoachReadout():
         self.fig = plt.figure(figsize=((7,5)))
         self.ax = self.fig.add_subplot(1,1,1)
         if not self.plot_ylims:
-            self.plot_ylims = [-67, -66]
+            self.plot_ylims = [-61.2, -60.9]
             plt.ylim(self.plot_ylims)
+        if not self.plot_xlims:
+            self.plot_xlims = [13660, 13850]
         total_power = []
         while self.running:
             acc_n, power, tmsp = self.get_power()
