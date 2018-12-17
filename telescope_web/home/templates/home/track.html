@@ -246,6 +246,9 @@
         $(window).on('load',function(){
         $('#checked_modal').modal('show');
         });
+        $('#checked_modal').on('hidden.bs.modal', function () {
+          window.location.href = '/track'
+        })
       </script>
     {% endif %}
   </div>

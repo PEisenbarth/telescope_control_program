@@ -95,8 +95,8 @@
           {% endfor %}
         </select>
       </div>
-
       <input type="submit" class="btn btn-outline-secondary float-right" name="submit_combine" value="Add data" style="vertical-align:bottom">
+      <button class="btn btn-outline-secondary" formnovalidate name="plot_dset" value="plot">Plot dataset</button>
       <br>
     </div>
   </div>
@@ -154,6 +154,10 @@
     {% endfor %}
   </div>
 </div>
+{% if plot %}
+  {% include 'home/dset_plot.html' %}
+{% endif %}
+
 <script>
   // Show the right files/datasets for the corresponding directories/file
   function directory(){

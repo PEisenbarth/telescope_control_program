@@ -4,12 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
-from telescopecontrol.check_target import *
-from telescopecontrol.commands import *
-# from .check_target import *
-# from .commands import *
-from roachboard_readout import RoachReadout
-from .data_selection import data_selection, submit_selection
+# from telescopecontrol.check_target import *
+# from telescopecontrol.commands import *
+from .check_target import *
+from .commands import *
+# from roachboard_readout import RoachReadout
+from .data_selection import data_selection, submit_selection, plot_dset
 from update_Status import update
 from requests import getvalue_get, getvalue_post, return_message
 
@@ -387,6 +387,10 @@ def select_data(request):
         datafile = getvalue_post(request, 'delete', str)
         os.remove('/home/telescopecontrol/philippe/telescope_control/telescope_web/home/static/combined_files/' + datafile)
         return_message(request, 'warning', "'%s' removed!" % datafile)
+    if request.POST.get('plot_dset'):
+        tag, message, con = plot_dset(request)
+        return_message(request, tag, message)
+        context.update(con)
     context.update(data_selection(request))
 
     return render(request, 'home/select_data.html', context)

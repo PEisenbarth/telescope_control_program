@@ -1,6 +1,12 @@
 import os
 import h5py
 from requests import getvalue_post
+import matplotlib
+matplotlib.use('svg')
+from matplotlib import pyplot as plt
+import mpld3
+from mpld3 import utils, plugins
+import numpy as np
 
 DAQ_path = '/home/telescopecontrol/philippe/DAQ/'
 dest_path = '/home/telescopecontrol/philippe/telescope_control/telescope_web/home/static/combined_files/'
@@ -79,3 +85,107 @@ def submit_selection(request):
         return (tag, message)
     except Exception, e:
         return ('error', e)
+
+class LinkedView(plugins.PluginBase):
+    """A simple plugin showing how multiple axes can be linked"""
+
+    JAVASCRIPT = """
+    mpld3.register_plugin("linkedview", LinkedViewPlugin);
+    LinkedViewPlugin.prototype = Object.create(mpld3.Plugin.prototype);
+    LinkedViewPlugin.prototype.constructor = LinkedViewPlugin;
+    LinkedViewPlugin.prototype.requiredProps = ["idpts", "idline", "data"];
+    LinkedViewPlugin.prototype.defaultProps = {}
+    function LinkedViewPlugin(fig, props){
+        mpld3.Plugin.call(this, fig, props);
+    };
+
+    LinkedViewPlugin.prototype.draw = function(){
+      var pts = mpld3.get_element(this.props.idpts);
+      var line = mpld3.get_element(this.props.idline);
+      var data = this.props.data;
+
+      function mouseover(d, i){
+        line.data = data[i];
+        line.elements().transition()
+            .attr("d", line.datafunc(line.data))
+            .style("stroke", this.style.fill);
+      }
+      pts.elements().on("mouseover", mouseover);
+    };
+    """
+
+    def __init__(self, points, line, linedata):
+        if isinstance(points, matplotlib.lines.Line2D):
+            suffix = "pts"
+        else:
+            suffix = None
+
+        self.dict_ = {"type": "linkedview",
+                      "idpts": utils.get_id(points, suffix),
+                      "idline": utils.get_id(line),
+                      "data": linedata}
+
+
+def plot_dset(request):
+    """
+    plot the requested dataset
+    :return: success/error message, context data
+    """
+
+    directory = getvalue_post(request, 'dir', str)
+    data_file = getvalue_post(request, 'file', str)
+    data_set = request.POST.get('dset')
+    dest_file = '/home/telescopecontrol/philippe/telescope_control/telescope_web/home/templates/home/dset_plot.html'
+    if not data_set:
+        return ('error', 'Please choose a dataset', {})
+
+    if directory == 'roachboard_readout':
+        print 'doing roach plot'
+        with h5py.File(os.path.join(DAQ_path, directory, data_file)) as hdf:
+            hdata = hdf.get(data_set).value
+        if data_set.endswith('spectrum'):
+            spectrum = [i[1:] for i in hdata]
+            time = np.array([i[0] - hdata[0][0] for i in hdata])
+
+            fig, ax = plt.subplots(2, gridspec_kw={'height_ratios': [5, 1]})
+            data = np.array([[range(len(spectrum[1])), s] for s in spectrum])
+
+            points = ax[1].scatter(time, 0 * time, s=80, alpha=0.5)
+
+            # create the line object
+            ax[0].set_title('%s/%s' % (data_file, data_set))
+            lines = ax[0].plot(data[0][0], 0 * data[0][0], '-w', lw=3, alpha=0.5)
+            ax[1].set_xlabel('Time')
+            ax[1].set_title('Hover over the time points to see the corresponding spectrum')
+            ax[0].set_ylim(-84, -83.4)
+
+            # transpose line data and add plugin
+            linedata = data.transpose(0, 2, 1).tolist()
+            # link the timepoints to the spectra
+            plugins.connect(fig, LinkedView(points, lines[0], linedata))
+
+            mpld3.save_html(fig, dest_file)
+
+        if data_set.endswith('power'):
+            fig = plt.figure()
+            time = [i[0]-hdata[0][0] for i in hdata]
+            power = [i[1] for i in hdata]
+            plt.plot(time, power)
+            plt.title('%s/%s' % (data_file, data_set))
+            mpld3.save_html(fig, dest_file)
+
+    elif directory == 'antenna_positions':
+        with h5py.File(os.path.join(DAQ_path, directory, data_file)) as hdf:
+            print hdf.get(data_set).keys()
+            data = hdf.get(data_set + '/' + hdf.get(data_set).keys()[0]).value
+
+        az = [i[1] for i in data]
+        el = [i[2] for i in data]
+        fig = plt.figure()
+        plt.plot(az, el)
+        plt.title('%s/%s' % (data_file, data_set))
+        plt.xlabel('Azimuth in degree')
+        plt.ylabel('Elevation in degree')
+        mpld3.save_html(fig, dest_file)
+
+    return ('success', "Plotted '%s'" % data_set, {'plot': True})
