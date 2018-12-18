@@ -108,9 +108,20 @@ class LinkedView(plugins.PluginBase):
         line.data = data[i];
         line.elements().transition()
             .attr("d", line.datafunc(line.data))
-            .style("stroke", this.style.fill);
+            .style("stroke", "#0000FF");
+        pts.elements().transition()
+            .style("stroke", "#0000FF")
+            .style("fill-opacity", 0.5)
+            .style("stroke", "#0000FF")
+            .style("fill", "#0000FF");
+        d3.select(this).transition()
+            .style("stroke", "#FF0000")
+            .style("fill-opacity", 1.0)
+            .style("fill", "#FF0000");
       }
       pts.elements().on("mouseover", mouseover);
+            
+      
     };
     """
 
@@ -129,18 +140,22 @@ class LinkedView(plugins.PluginBase):
 def plot_dset(request):
     """
     plot the requested dataset
+    when choosing a spectrum dset, 2 plots get created. The lower one is a time bar from which the corresponding
+    soectrum can be chosen
     :return: success/error message, context data
     """
 
     directory = getvalue_post(request, 'dir', str)
     data_file = getvalue_post(request, 'file', str)
-    data_set = request.POST.get('dset')
-    dest_file = '/home/telescopecontrol/philippe/telescope_control/telescope_web/home/templates/home/dset_plot.html'
+    data_set = request.POST.getlist('dset')
     if not data_set:
-        return ('error', 'Please choose a dataset', {})
+        return ('error', 'Please choose a dataset!', {})
+    if len(data_set) > 1:
+        return ('error', 'Please select only one dataset!', {})
+    data_set = data_set[0]
+    dest_file = '/home/telescopecontrol/philippe/telescope_control/telescope_web/home/templates/home/dset_plot.html'
 
     if directory == 'roachboard_readout':
-        print 'doing roach plot'
         with h5py.File(os.path.join(DAQ_path, directory, data_file)) as hdf:
             hdata = hdf.get(data_set).value
         if data_set.endswith('spectrum'):
@@ -150,14 +165,16 @@ def plot_dset(request):
             fig, ax = plt.subplots(2, gridspec_kw={'height_ratios': [5, 1]})
             data = np.array([[range(len(spectrum[1])), s] for s in spectrum])
 
-            points = ax[1].scatter(time, 0 * time, s=80, alpha=0.5)
+            points = ax[1].scatter(time, 0 * time, marker=ur'$\u25ae$', s=100, alpha=0.5)
+            ax[1].set_xlabel('Time')
+            ax[1].set_xlim(-1, time[-1] +1)
 
             # create the line object
             ax[0].set_title('%s/%s' % (data_file, data_set))
             lines = ax[0].plot(data[0][0], 0 * data[0][0], '-w', lw=3, alpha=0.5)
-            ax[1].set_xlabel('Time')
-            ax[1].set_title('Hover over the time points to see the corresponding spectrum')
             ax[0].set_ylim(-84, -83.4)
+            ax[0].set_xlabel('Channel')
+            ax[0].set_ylabel('Power (dBm)')
 
             # transpose line data and add plugin
             linedata = data.transpose(0, 2, 1).tolist()
@@ -172,6 +189,7 @@ def plot_dset(request):
             power = [i[1] for i in hdata]
             plt.plot(time, power)
             plt.title('%s/%s' % (data_file, data_set))
+            plt.ylabel('Power(dBm)')
             mpld3.save_html(fig, dest_file)
 
     elif directory == 'antenna_positions':
@@ -186,6 +204,6 @@ def plot_dset(request):
         plt.title('%s/%s' % (data_file, data_set))
         plt.xlabel('Azimuth in degree')
         plt.ylabel('Elevation in degree')
-        mpld3.save_html(fig, dest_file)
+        mpld3.save_html(fig, dest_file, figid='dset_plot')
 
-    return ('success', "Plotted '%s'" % data_set, {'plot': True})
+    return ('success', "Plotted '%s'" % data_set, {'plot': '%s' % data_set})

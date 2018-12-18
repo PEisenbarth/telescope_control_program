@@ -1,6 +1,32 @@
 {% extends 'home/layout.html' %}
 
 {% block content %}
+{% if plot %}
+  <div class="modal fade" id="plotModal" tabindex="-1" role="dialog" aria-labelledby="plotModallabel" aria-hidden="true" data-show="false">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content"  style="background-color:#e6e6e6">
+        <div class="modal-header">
+          <h5 class="modal-title" id="plotModallabel">Plot of "{{ plot }}"</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% include 'home/dset_plot.html' %}
+          <p class="text-secondary">Hover over the time bar to see the related spectrum</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $("#plotModal").modal('show');
+    $('#plotModal').find('.modal-content').width(640);
+
+  </script>
+{% endif %}
 <form action="" method="post">
 {% csrf_token %}
 <fieldset class="mb-4" style="min-height:290px">
@@ -154,9 +180,6 @@
     {% endfor %}
   </div>
 </div>
-{% if plot %}
-  {% include 'home/dset_plot.html' %}
-{% endif %}
 
 <script>
   // Show the right files/datasets for the corresponding directories/file
@@ -196,6 +219,6 @@
     var file = $('#show-dsets').find(":selected").attr('value');
     $('[id="' + file + '"]').modal('show');
     $("#show-dsets").val('');
-  }
+  };
 </script>
 {% endblock %}
