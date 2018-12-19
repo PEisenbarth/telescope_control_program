@@ -29,6 +29,7 @@ class TrackTarget:
         self.halt = False
         self.stop_all = False
         self.waiting = False
+        self.next_track = False     # if True: Start next track immediately after stop_track() got called
 
     def track(self, targetname, observationDuration=5, GoOffAzEl=None, startTime=None,
               moveIncrementalTime=60, mode = None):
@@ -85,7 +86,15 @@ class TrackTarget:
             self._start_track(*args)
             if self.halt and not self.stop_all:
                 # stop_track() got called
-                print 'Current track(%s) was stopped, to go on with the next target type continue_track()' % args[0]
+                if not self.next_track:
+                    print 'Current track(%s) was stopped, to go on with the next target type continue_track()' % args[0]
+                else:
+                    print 'Current track(%s) was stopped, starting next track' % args[0]
+                    self.halt = False
+                while self.halt and not self.next_track:
+                    # Check every 0.5s if halt got cleared
+                    time.sleep(0.5)
+                self.next_track = False
             if self.stop_all:
                 # stop_all_tracks() got called (stop_all and halt got set to True)
                 items = self.track_Queue.qsize()
@@ -96,9 +105,6 @@ class TrackTarget:
                 self.halt = False
                 self.OVST.halt = False
                 self.OVST.clearTelescopeHalt()
-            while self.halt:
-                # Check every 0.5s if halt got cleared
-                time.sleep(0.5)
             try:
                 # Only if daq was started
                 self.OVST.daq = False
@@ -108,7 +114,7 @@ class TrackTarget:
             except:
                 pass
         self.running = False
-        del self.current_track
+        self.current_track = None
         print 'No targets to track anymore moving to home position.'
         self.OVST.moveHomePosition()
 
@@ -404,9 +410,9 @@ def sleepTimeWithChecks(self, sleepSec, fromTrack=False):
         If this function is called by :class: 'TrackTarget' it works around
         'self.kill' because it is no attribute of the class.
     '''
-    tenSecSleep, remainSleep = divmod(sleepSec, 10)
+    tenSecSleep, remainSleep = divmod(sleepSec, 1)
     for i in range(int(tenSecSleep)):
-        time.sleep(10)
+        time.sleep(1)
         if fromTrack:
             if self.halt:  # stops waiting if halt or kill command is set
                 break  # The text should be written later

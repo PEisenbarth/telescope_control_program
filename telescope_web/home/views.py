@@ -195,14 +195,15 @@ def tracks(request):  # TODO
 
     if request.GET.get('stop_all_tracks'):
         stop_all_tracks()
+        time.sleep(1.2)
         return redirect('/track')
 
     del_track = request.GET.get('del_track')
 
     if del_track:
         if del_track == 'current':
-            stop_track()
-            continue_track()
+            stop_track(True)
+            time.sleep(1.2)
         else:
             try:
                 delete_track(int(del_track))

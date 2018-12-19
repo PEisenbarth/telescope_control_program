@@ -79,7 +79,11 @@ def track_line(linepoints, duration):
     mode = obs_mode('Line', linePoints=linepoints, observationDuration=duration)
     return trackq.track(target, duration, mode=mode)
 
-def stop_track():
+def stop_track(next_track=False):
+    """
+    :param next_track: start next track immediately 
+    """
+    trackq.next_track = next_track
     trackq.halt = True
     if trackq.waiting:
         trackq.th.cancel()
@@ -102,10 +106,6 @@ def stop_all_tracks():
     trackq.stop_all = True
     # If thread is waiting to start, cancel it
     OVST.haltTelescopes()
-    trackq.track_Queue.queue.clear()
-    home()
-    trackq.halt = False
-    trackq.stop_all = False
 
 def mapping(mode, az_frame, el_frame, *args, **kwargs):
     return obs_mode(mode, az_frame, el_frame, *args, **kwargs)
