@@ -101,7 +101,7 @@ def index(request):
 
 
 @login_required()
-def tracks(request):  # TODO
+def tracks(request):
     '''
     This is the view function for /track. It checks if a form for a tracking mode was submitted and calls the corresponding
     funciton. After that, the user gets redirected to /track

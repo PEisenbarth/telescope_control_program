@@ -63,8 +63,8 @@ class RoachReadout():
         self.fpga = None
         self.old_acc_n = 0
         self.running = False # As long as readout is true, the data gets plotted
-        self.plot_xlims = None
-        self.plot_ylims = None
+        self.plot_xlims = [0, 0]
+        self.plot_ylims = [0, 0]
         self.ADC_correction = 1.28
         self.data = []
         self.directory = '/home/telescopecontrol/philippe/DAQ/roachboard_readout/'
@@ -103,10 +103,14 @@ class RoachReadout():
         return acc_n, dBmfloat, tmsp
 
     def plot_spectrum(self):
-        if not self.plot_ylims:
-            self.plot_ylims = [-84, -83]
-        if not self.plot_xlims:
-            self.plot_xlims = [13750, 13800]
+        if not self.plot_ylims[0]:
+            self.plot_ylims[0] = -84
+        if not self.plot_ylims[1]:
+            self.plot_ylims[1] = -83
+        if not self.plot_xlims[0]:
+            self.plot_xlims[0] = 13750
+        if not self.plot_xlims[1]:
+            self.plot_xlims[1] = 13800
         self.fig = plt.figure(figsize=((7,5)))
         self.ax = self.fig.add_subplot(1,1,1)
         self.save_limits = self.plot_xlims
@@ -172,11 +176,16 @@ class RoachReadout():
     def plot_power(self):
         self.fig = plt.figure(figsize=((7,5)))
         self.ax = self.fig.add_subplot(1,1,1)
-        if not self.plot_ylims:
-            self.plot_ylims = [-61.2, -60.9]
-            plt.ylim(self.plot_ylims)
-        if not self.plot_xlims:
-            self.plot_xlims = [13660, 13850]
+
+        if not self.plot_ylims[0]:
+            self.plot_ylims[0] = -61.2
+        if not self.plot_ylims[1]:
+            self.plot_ylims[1] = -60.9
+        if not self.plot_xlims[0]:
+            self.plot_xlims[0] = 13660
+        if not self.plot_xlims[1]:
+            self.plot_xlims[1] = 13850
+
         total_power = []
         while self.running:
             acc_n, power, tmsp = self.get_power()
