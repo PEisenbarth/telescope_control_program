@@ -190,6 +190,7 @@ def plot_dset(request):
             plt.plot(time, power)
             plt.title('%s/%s' % (data_file, data_set))
             plt.ylabel('Power(dBm)')
+            plt.xlabel('Time (s)')
             mpld3.save_html(fig, dest_file)
 
     elif directory == 'antenna_positions':

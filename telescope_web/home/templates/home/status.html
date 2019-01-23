@@ -1,87 +1,140 @@
+    <ul class="nav nav-tabs track_nav" id="myTab" role="tablist" onclick="setTimeout(check_tabs,250)">
+      <li class="nav-item">
+        <a class="nav-link active" id="stream-tab" data-toggle="tab" href="#stream" role="tab" aria-controls="stream" aria-selected="false">Stream</a>
+      </li>
+      <li class="nav-item">
+          <a class="nav-link" id="status-tab" data-toggle="tab" href="#status" role="tab" aria-controls="status" aria-selected="true">Position/Status</a>
+      </li>
+    </ul>
+    <div class="tab-content" id="status_tabs">
+      <div class="tab-pane fade" id="status" role="tabpanel" aria-labelledby="status-tab">
+        <div class="row telstat_row">
+          <div class="col">
+              <script>
+                  function update_func()
+                  {
+                      $("#az1").load("updated_content .az0");
+                      $("#el1").load("updated_content .el0");
+                      $("#az2").load("updated_content .az1");
+                      $("#el2").load("updated_content .el1");
+                      $("#motion").load("updated_content .status4");
+                      $("#system").load("updated_content .status1");
+                      $("#fault").load("updated_content .status2");
+                      $("#telescope").load("updated_content .status3");
+                      $("#connection").load("updated_content .status5");
+                  };
+                  update_func();
+                  setInterval(update_func, 1000);
+              </script>
+              <table class="table table-hover table-active">
+                <thead>
+                  <tr>
+                    <th scope="col">Shed Side Telescope</th>
+                    <th scope="col">Position</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Azimuth</th>
+                    <td><div class="update" id="az1"></div></td>
+                  </tr>
+                  <tr>
+                      <th scope="row">Elevation</th>
+                      <td><div class="update" id="el1"></div></td>
+                  </tr>
+                </tbody>
+                <thead>
+                  <tr>
+                    <th scope="col">Stairs Side Telescope</th>
+                    <th scope="col">Position</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Azimuth</th>
+                    <td><div class="update" id="az2"></div></td>
+                  </tr>
+                  <tr>
+                      <th scope="row">Elevation</th>
+                      <td><div class="update" id="el2"></div></td>
+                  </tr>
+                  </tbody>
+              </table>
+          </div>
+          <div class="col plc_col">
+              <table class="table table-hover table-active">
+                <thead>
+                  <tr>
+                    <th scope="col">PLC Register</th>
+                    <th scope="col">Current Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                      <th scope="row">Motion Command</th>
+                      <td><div class="update" id="motion"></div></td>
+                  </tr>
+                  <tr>
+                      <th scope="row">System Status</th>
+                      <td><div class="update" id="system"></div></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Fault Code</th>
+                    <td><div class="update" id="fault"></div></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Telescope Status</th>
+                    <td><div class="update" id="telescope"></div></td>
+                  </tr>
+                                        <tr>
+                    <th scope="row">Connection</th>
+                    <td><div class="update" id="connection"></div></td>
+                  </tr>
+                </tbody>
+              </table>
+          </div>
+      </div>
 
-                <div class="row telstat_row">
-                    <div class="col">
-                        <script>
-                            function update_func()
-                            {
-                                $("#az1").load("updated_content .az0");
-                                $("#el1").load("updated_content .el0");
-                                $("#az2").load("updated_content .az1");
-                                $("#el2").load("updated_content .el1");
-                                $("#motion").load("updated_content .status4");
-                                $("#system").load("updated_content .status1");
-                                $("#fault").load("updated_content .status2");
-                                $("#telescope").load("updated_content .status3");
-                                $("#connection").load("updated_content .status5");
-                            };
-                            update_func();
-                            setInterval(update_func, 1000);
-                        </script>
-                        <table class="table table-hover table-active">
-                          <thead>
-                            <tr>
-                              <th scope="col">Shed Side Telescope</th>
-                              <th scope="col">Position</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <th scope="row">Azimuth</th>
-                              <td><div class="update" id="az1"></div></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Elevation</th>
-                                <td><div class="update" id="el1"></div></td>
-                            </tr>
-                          </tbody>
-                          <thead>
-                            <tr>
-                              <th scope="col">Stairs Side Telescope</th>
-                              <th scope="col">Position</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <th scope="row">Azimuth</th>
-                              <td><div class="update" id="az2"></div></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Elevation</th>
-                                <td><div class="update" id="el2"></div></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="col plc_col">
-                        <table class="table table-hover table-active">
-                          <thead>
-                            <tr>
-                              <th scope="col">PLC Register</th>
-                              <th scope="col">Current Status</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                                <th scope="row">Motion Command</th>
-                                <td><div class="update" id="motion"></div></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">System Status</th>
-                                <td><div class="update" id="system"></div></td>
-                            </tr>
-                            <tr>
-                              <th scope="row">Fault Code</th>
-                              <td><div class="update" id="fault"></div></td>
-                            </tr>
-                            <tr>
-                              <th scope="row">Telescope Status</th>
-                              <td><div class="update" id="telescope"></div></td>
-                            </tr>
-                                                  <tr>
-                              <th scope="row">Connection</th>
-                              <td><div class="update" id="connection"></div></td>
-                            </tr>
-                          </tbody>
-                        </table>
-                    </div>
-                </div>
+      </div>
+      <div class="tab-pane fade show active" id="stream" role="tabpanel" aria-labelledby="stream-tab">
+        <style>
+#streamdiv{
+  overflow:hidden;
+  height:360px;
+  width:680px;
+  margin-bottom:10px;
+}
+
+#streamdiv iframe{
+  height:1000px;
+  width:1500px;
+  -ms-zoom: 0.6;
+  -moz-transform: scale(0.6);
+  -moz-transform-origin: 0 0;
+  -o-transform: scale(0.6);
+  -o-transform-origin: 0 0;
+  -webkit-transform: scale(0.6);
+  -webkit-transform-origin: 0 0;
+}
+
+#status, #stream {
+  height:370px;
+}
+
+</style>
+
+<div id="streamdiv">
+<iframe onload="" scrolling="no" id="streamframe" src="http://172.17.5.43/live/view.php">
+</iframe>
+</div>
+
+<script>
+  var myIframe = document.getElementById('streamframe');
+  var div = document.getElementById('streamdiv');
+  myIframe.addEventListener("load", function() {
+    streamdiv.scrollTo(106, 99);
+  });
+</script>
+
+      </div>
+

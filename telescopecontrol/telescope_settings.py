@@ -237,7 +237,7 @@ def init_wetton_telescope(OVST):
     azElSensRTT2[0].isAzimuth = True
     # Hard coded offset, maybe it could be done by reading out the PLC
     azElSensRTT2[1].offset = -65
-    azElSensRTT2[0].offset = 206
+    azElSensRTT2[0].offset = 208.4
 
     # If the value changes more than the 'maxDeltaWithoutRolloverDetection', it is interpret as Rollover
     azElSensRTT2[0].maxDeltaWithoutRolloverDetection = 90
