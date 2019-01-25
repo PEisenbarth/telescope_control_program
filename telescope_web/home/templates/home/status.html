@@ -1,4 +1,4 @@
-    <ul class="nav nav-tabs track_nav" id="myTab" role="tablist" onclick="setTimeout(check_tabs,250)">
+    <ul class="nav nav-tabs track_nav" id="myTab" role="tablist">
       <li class="nav-item">
         <a class="nav-link active" id="stream-tab" data-toggle="tab" href="#stream" role="tab" aria-controls="stream" aria-selected="false">Stream</a>
       </li>
@@ -98,43 +98,43 @@
       </div>
       <div class="tab-pane fade show active" id="stream" role="tabpanel" aria-labelledby="stream-tab">
         <style>
-#streamdiv{
-  overflow:hidden;
-  height:360px;
-  width:680px;
-  margin-bottom:10px;
-}
+          #streamdiv{
+            overflow:hidden;
+            height:360px;
+            width:680px;
+            margin-bottom:10px;
+          }
 
-#streamdiv iframe{
-  height:1000px;
-  width:1500px;
-  -ms-zoom: 0.6;
-  -moz-transform: scale(0.6);
-  -moz-transform-origin: 0 0;
-  -o-transform: scale(0.6);
-  -o-transform-origin: 0 0;
-  -webkit-transform: scale(0.6);
-  -webkit-transform-origin: 0 0;
-}
+          #streamdiv iframe{
+            height:1000px;
+            width:1500px;
+            -ms-zoom: 0.55;
+            -moz-transform: scale(0.55);
+            -moz-transform-origin: 0 0;
+            -o-transform: scale(0.55);
+            -o-transform-origin: 0 0;
+            -webkit-transform: scale(0.55);
+            -webkit-transform-origin: 0 0;
+          }
 
-#status, #stream {
-  height:370px;
-}
+          #status, #stream {
+            height:370px;
+          }
+        </style>
 
-</style>
+        <div id="streamdiv">
+        <iframe onload="" scrolling="no" id="streamframe" src="http://172.17.5.43/live/view.php">
+        </iframe>
+        </div>
 
-<div id="streamdiv">
-<iframe onload="" scrolling="no" id="streamframe" src="http://172.17.5.43/live/view.php">
-</iframe>
-</div>
-
-<script>
-  var myIframe = document.getElementById('streamframe');
-  var div = document.getElementById('streamdiv');
-  myIframe.addEventListener("load", function() {
-    streamdiv.scrollTo(106, 99);
-  });
-</script>
+        <script>
+          var myIframe = document.getElementById('streamframe');
+          var div = document.getElementById('streamdiv');
+          myIframe.addEventListener("load", function() {
+            streamdiv.scrollTo(65, 87);
+          });
+        </script>
 
       </div>
+    </div>
 
